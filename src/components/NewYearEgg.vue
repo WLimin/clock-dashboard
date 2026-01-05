@@ -6,16 +6,32 @@ import { getLunarDate } from '../utils/lunar'
 const { now } = useTime()
 
 // --- Mock Time Logic (Optional, for preview) ---
-const isPreviewMode = ref(false) // 修改为 true 可立即预览效果
+// const isPreviewMode = ref(false) // 修改为 true 可立即预览效果
+const opts = withDefaults(defineProps<{ isPreviewMode: boolean }>(), {
+  isPreviewMode: false,
+})
+
 const mockOffset = ref(0)
 // 公历跨年测试：2025-12-31 23:59:25
 // const testStartTime = new Date(2025, 11, 31, 23, 59, 25).getTime()
 // 农历跨年测试（2026 除夕）：2026-01-16 23:59:25 (注意 JS 月份从 0 开始，1 代表 2 月)
 const testStartTime = new Date(2026, 1, 16, 23, 59, 45).getTime()
 // --- End Mock ---
+const isPreviewModeOld = ref(opts.isPreviewMode)
 
 const currentTime = computed(() => {
-  if (isPreviewMode.value) {
+  if (opts.isPreviewMode != isPreviewModeOld.value) {
+    if (opts.isPreviewMode) { //set opts.isPreviewMode
+      stopMockTimer()
+      if (animationId) cancelAnimationFrame(animationId)
+      setTimeout(() => {
+        mockOffset.value = 0
+        startMockTimer()
+      }, 2000)
+    }
+    isPreviewModeOld.value = opts.isPreviewMode
+  }
+  if (opts.isPreviewMode) {
     return new Date(testStartTime + mockOffset.value)
   }
   return now.value
@@ -47,7 +63,7 @@ const isEggActive = computed(() => {
 // Internal Timer for Mock
 let internalTimer: number | undefined
 function startMockTimer() {
-  if (isPreviewMode.value && !internalTimer) {
+  if (opts.isPreviewMode && !internalTimer) {
     internalTimer = window.setInterval(() => {
       mockOffset.value += 1000
     }, 1000)
@@ -100,6 +116,9 @@ class Firework {
   particles: Particle[] = []
   exploded = false
   velocity: number
+  slope: number // 斜率属性
+  canvasWidth: number //边界
+
 
   constructor(canvasWidth: number, canvasHeight: number) {
     this.x = Math.random() * canvasWidth
@@ -107,12 +126,15 @@ class Firework {
     this.targetY = Math.random() * (canvasHeight * 0.5)
     this.color = `hsl(${Math.random() * 360}, 100%, 50%)`
     this.velocity = 4 + Math.random() * 4
+    this.slope = Math.random() * 1 - 0.5 // 随机斜率范围在-0.5到0.5之间
+    this.canvasWidth = canvasWidth
   }
 
   update() {
     if (!this.exploded) {
-      this.y -= this.velocity
-      if (this.y <= this.targetY) {
+      this.y -= this.velocity      
+      this.x += this.velocity * this.slope // 斜率更新，爆发逻辑撞墙破
+      if ((this.y <= this.targetY) || (this.x <= 0) || (this.x >= this.canvasWidth)) {
         this.explode()
       }
     }
@@ -236,7 +258,7 @@ watch(isEggActive, (active) => {
 }, { immediate: true })
 
 onMounted(() => {
-  if (isPreviewMode.value) startMockTimer()
+  if (opts.isPreviewMode) startMockTimer()
   window.addEventListener('resize', initCanvas)
 })
 
