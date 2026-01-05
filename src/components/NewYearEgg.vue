@@ -133,7 +133,7 @@ class Firework {
   update() {
     if (!this.exploded) {
       this.y -= this.velocity      
-      this.x += this.velocity * this.slope // 斜率更新，爆发逻辑撞墙破
+      this.x += this.velocity * this.slope // 路线更新，爆发逻辑撞墙破
       if ((this.y <= this.targetY) || (this.x <= 0) || (this.x >= this.canvasWidth)) {
         this.explode()
       }
@@ -176,6 +176,7 @@ class Particle {
   vy: number
   alpha = 1
   gravity = 0.05
+  artType: number
 
   constructor(x: number, y: number, color: string) {
     this.x = x
@@ -185,6 +186,7 @@ class Particle {
     const speed = Math.random() * 3 + 1
     this.vx = Math.cos(angle) * speed
     this.vy = Math.sin(angle) * speed
+    this.artType = Math.random() * 5
   }
 
   update() {
@@ -200,7 +202,16 @@ class Particle {
     ctx.globalAlpha = this.alpha
     ctx.fillStyle = this.color
     ctx.beginPath()
-    ctx.arc(this.x, this.y, 1.5, 0, Math.PI * 2)
+    if (this.artType >= 4.5) { // (5-4.5)/5=1%
+      // Draw a red heart shape using quadratic Bezier curve
+      ctx.fillStyle = 'red'
+      ctx.moveTo(this.x - 3, this.y)
+      ctx.bezierCurveTo(this.x - 5, this.y + 4, this.x - 2, this.y + 7, this.x, this.y + 10)
+      ctx.bezierCurveTo(this.x + 2, this.y + 7, this.x + 5, this.y + 4, this.x + 3, this.y)
+      ctx.closePath()
+    } else {
+      ctx.arc(this.x, this.y, 1.5, 0, Math.PI * 2)
+    }
     ctx.fill()
     ctx.globalAlpha = 1
   }
