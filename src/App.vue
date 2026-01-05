@@ -15,6 +15,11 @@ const calendarRef = ref<any>(null)
 const weatherStore = useWeatherStore()
 const { weatherData, showRainEffect, showThunderEffect, showSnowEffect } = storeToRefs(weatherStore)
 
+const isPreviewMode = ref(false)
+
+function toggleIsPreviewMode() {
+  isPreviewMode.value = !isPreviewMode.value
+}
 // 判断是否需要渲染天气特效组件
 const shouldShowWeatherEffects = computed(() => {
   if (!weatherData.value) return false
@@ -129,14 +134,14 @@ onUnmounted(() => {
         <SmartHomeView />
       </div>
       <div class="slide-page w-screen h-screen flex items-center justify-center flex-shrink-0">
-        <ClockWeatherView />
+        <ClockWeatherView @showEggPreview="toggleIsPreviewMode" />
       </div>
       <div class="slide-page w-screen h-screen flex items-center justify-center flex-shrink-0">
         <CalendarView ref="calendarRef" />
       </div>
     </div>
 
-    <NewYearEgg />
+    <NewYearEgg :isPreviewMode="isPreviewMode" />
 
     <WeatherEffects v-if="shouldShowWeatherEffects" />
   </div>
