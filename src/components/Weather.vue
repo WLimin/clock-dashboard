@@ -36,7 +36,7 @@ onUnmounted(() => {
 <template>
   <div
     id="weather-container"
-    class="weather-clickable grid grid-cols-1 md:grid-cols-3 gap-3 w-full transition-opacity duration-700"
+    class="weather-clickable px-12 grid grid-cols-1 md:grid-cols-3 gap-3 w-full transition-opacity duration-700"
     :class="{ 'opacity-30': loading, 'opacity-100': !loading }"
     @click="showSettings = true"
   >
@@ -78,13 +78,13 @@ onUnmounted(() => {
 
     <!-- 环境数据 -->
     <div class="flex flex-col justify-center items-center md:items-end gap-3 text-white text-3xl tabular-nums">
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-2 gap-y-3 gap-x-4">
         <!-- 湿度 -->
         <div class="flex items-center justify-end gap-1">
           <span id="humidity-val">
             {{ weatherData ? weatherData.current.relative_humidity_2m : '--' }}%
           </span>
-          <Droplets class="w-8 h-8 text-blue-500/60" />
+          <Droplets class="w-8 h-8 text-blue-500/60 flex-shrink-0" />
         </div>
 
         <!-- 空气质量 -->
@@ -97,7 +97,7 @@ onUnmounted(() => {
               {{ aqiInfo?.label || '-' }}
             </span>
           </div>
-          <Leaf class="w-8 h-8 text-green-300/60" />
+          <Leaf class="w-8 h-8 text-green-300/60 flex-shrink-0" />
         </div>
 
         <!-- 体感温度 -->
@@ -105,7 +105,7 @@ onUnmounted(() => {
           <span id="apparent-temp-val">
             {{ weatherData ? Math.round(weatherData.current.apparent_temperature) : '--' }}°C
           </span>
-          <PersonStanding class="w-8 h-8 text-orange-500/60" />
+          <PersonStanding class="w-8 h-8 text-orange-500/60 flex-shrink-0" />
         </div>
 
         <!-- 紫外线 -->
@@ -113,7 +113,7 @@ onUnmounted(() => {
           <span id="uv-val">
             {{ weatherData ? Math.round(weatherData.hourly.uv_index[weatherData.current_hour_index]) : '--' }}
           </span>
-          <Sun class="w-8 h-8 text-purple-500/60" />
+          <Sun class="w-8 h-8 text-purple-500/60 flex-shrink-0" />
         </div>
       </div>
     </div>
@@ -134,7 +134,6 @@ onUnmounted(() => {
   transition:
     transform 0.2s ease,
     opacity 0.5s ease;
-  padding: 0 1.5rem;
 }
 .weather-clickable:active {
   transform: scale(0.98);
