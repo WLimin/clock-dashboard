@@ -109,7 +109,7 @@ function handleSaveAndClose() {
               v-model.number="draft.fontWeight"
               type="range"
               min="100"
-              max="900"
+              max="1000"
               step="100"
               class="w-full accent-white"
             >
@@ -123,6 +123,7 @@ function handleSaveAndClose() {
               <span>700</span>
               <span>800</span>
               <span>900</span>
+              <span>1000</span>
             </div>
           </section>
 
