@@ -1,18 +1,24 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import ClockSettingsModal from '../components/ClockSettingsModal.vue'
 import Digit from '../components/Digit.vue'
 import Weather from '../components/Weather.vue'
 import { useTime } from '../hooks/useTime'
 import { useConfigStore } from '../stores/config'
 
-const { h1, h2, m1, m2, s1, s2, lunar, now } = useTime()
-
 const configStore = useConfigStore()
 const { clockConfig } = storeToRefs(configStore)
 
+const { h1, h2, m1, m2, s1, s2, lunar, now } = useTime({
+  is24Hour: computed(() => clockConfig.value.is24Hour),
+})
+
 const showClockSettings = ref(false)
+
+const baseDelay = computed(() => {
+  return clockConfig.value.showSeconds ? 0 : -2
+})
 </script>
 
 <template>
@@ -47,14 +53,20 @@ const showClockSettings = ref(false)
       @click="showClockSettings = true"
     >
       <Digit
-        :value="h1" :show-seconds="clockConfig.showSeconds" :enable-tilt="clockConfig.enableTilt" :delay="500"
+        v-if="clockConfig.is24Hour || h1 !== 0"
+        :value="h1" :show-seconds="clockConfig.showSeconds" :enable-tilt="clockConfig.enableTilt"
         :trigger="clockConfig.showSeconds ? now.getTime() : Math.floor(now.getTime() / 60000)"
+        :delay="(5 - baseDelay) * 100"
         class="opacity-95"
       />
       <Digit
-        :value="h2" :show-seconds="clockConfig.showSeconds" :enable-tilt="clockConfig.enableTilt" :delay="400"
+        :value="h2" :show-seconds="clockConfig.showSeconds" :enable-tilt="clockConfig.enableTilt"
         :trigger="clockConfig.showSeconds ? now.getTime() : Math.floor(now.getTime() / 60000)"
-        class="opacity-95 brightness"
+        :delay="(4 - baseDelay) * 100"
+        class="opacity-95"
+        :class="[{
+          brightness: clockConfig.is24Hour || (!clockConfig.is24Hour && h1 !== 0),
+        }]"
       />
       <!-- 根据时间值来改变分割符号:显示颜色。 -->
       <div class="clock-separator" :style="{ color: `rgb(${128 - (h1 * 10 + h2) * 5 + 10}, ${(m1 * 10 + s2) * 4 + 15}, ${(s1 * 10 + m2) * 4 + 15})` }">
@@ -62,13 +74,15 @@ const showClockSettings = ref(false)
       </div>
 
       <Digit
-        :value="m1" :show-seconds="clockConfig.showSeconds" :enable-tilt="clockConfig.enableTilt" :delay="300"
+        :value="m1" :show-seconds="clockConfig.showSeconds" :enable-tilt="clockConfig.enableTilt"
         :trigger="clockConfig.showSeconds ? now.getTime() : Math.floor(now.getTime() / 60000)"
+        :delay="(3 - baseDelay) * 100"
         class="opacity-95"
       />
       <Digit
-        :value="m2" :show-seconds="clockConfig.showSeconds" :enable-tilt="clockConfig.enableTilt" :delay="200"
+        :value="m2" :show-seconds="clockConfig.showSeconds" :enable-tilt="clockConfig.enableTilt"
         :trigger="clockConfig.showSeconds ? now.getTime() : Math.floor(now.getTime() / 60000)"
+        :delay="(2 - baseDelay) * 100"
         class="opacity-95 brightness"
       />
 
@@ -78,12 +92,23 @@ const showClockSettings = ref(false)
           <!-- 将秒显示为1/3大小，两个数字排成1列，实现向上翻页效果。 -->
           <span class="flex flex-col items-center md:items-start mt-5">
             <div class="second-digit">&nbsp;</div>
-            <Digit class="second-digit opacity-60" :value="s1" :show-seconds="clockConfig.showSeconds" :delay="100"
-              :enable-tilt="clockConfig.enableTilt" :trigger="now.getTime()" />
-            <Digit class="second-digit brightness opacity-60" :value="s2" :show-seconds="clockConfig.showSeconds"
-              :delay="0" :enable-tilt="clockConfig.enableTilt" :trigger="now.getTime()" />
-          </span>
+      
+            <Digit
+              class="second-digit opacity-60" :value="s1" :show-seconds="clockConfig.showSeconds"
+              :trigger="now.getTime()"
+              :delay="100"
+              :enable-tilt="clockConfig.enableTilt"
+            />
+            <Digit
+              class="second-digit brightness opacity-60" :value="s2" :show-seconds="clockConfig.showSeconds"
+              :trigger="now.getTime()"
+              :delay="0"
+              :enable-tilt="clockConfig.enableTilt"
+            />
+
+            </span>
         </div>
+
       </template>
     </div>
 

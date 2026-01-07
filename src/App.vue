@@ -20,6 +20,9 @@ const isPreviewMode = ref(false)
 function toggleIsPreviewMode() {
   isPreviewMode.value = !isPreviewMode.value
 }
+
+const isSwiping = ref(false)
+
 // 判断是否需要渲染天气特效组件
 const shouldShowWeatherEffects = computed(() => {
   if (!weatherData.value) return false
@@ -79,6 +82,11 @@ function handleTouchEnd(e: TouchEvent) {
   const endX = e.changedTouches[0].clientX
   const diff = startX - endX
   if (Math.abs(diff) > 50) {
+    isSwiping.value = true
+    setTimeout(() => {
+      isSwiping.value = false
+    }, 50)
+
     if (diff > 0 && currentPage.value < 2)
       goToPage(currentPage.value + 1)
     else if (diff < 0 && currentPage.value > 0)
@@ -94,10 +102,22 @@ function handleMouseDown(e: MouseEvent) {
 function handleMouseUp(e: MouseEvent) {
   const diff = startX - e.clientX
   if (Math.abs(diff) > 50) {
+    isSwiping.value = true
+    setTimeout(() => {
+      isSwiping.value = false
+    }, 50)
+
     if (diff > 0 && currentPage.value < 2)
       goToPage(currentPage.value + 1)
     else if (diff < 0 && currentPage.value > 0)
       goToPage(currentPage.value - 1)
+  }
+}
+
+function handleGlobalClick(e: MouseEvent) {
+  if (isSwiping.value) {
+    e.stopImmediatePropagation()
+    e.preventDefault()
   }
 }
 
@@ -121,6 +141,7 @@ onUnmounted(() => {
     @touchend="handleTouchEnd"
     @mousedown="handleMouseDown"
     @mouseup="handleMouseUp"
+    @click.capture="handleGlobalClick"
   >
     <!-- Background Decoration -->
     <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-900/10 rounded-full blur-3xl" />
