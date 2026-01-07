@@ -1,5 +1,13 @@
 @import '@fontsource/huninn';
 
+@font-face {
+  font-family: 'SF Pro Rounded';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/SF-Pro-Rounded-Lite.woff2') format('woff2');
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

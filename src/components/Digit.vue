@@ -5,6 +5,8 @@ const props = defineProps<{
   value: number
   trigger?: any
   showSeconds?: boolean
+  enableTilt?: boolean
+  delay?: number
 }>()
 
 const displayValue = ref(props.value) // 当前显示的数字
@@ -32,7 +34,7 @@ watch(() => props.value, (newVal, oldVal) => {
   setTimeout(() => {
     isAnimating.value = false
     displayValue.value = newVal // 将主数字设为新值
-  }, 800)
+  }, 800 + (props.delay || 0))
 })
 
 onMounted(() => {
@@ -42,11 +44,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="digit-container" :class="{ 'show-seconds': showSeconds }" :style="{ transform: containerRotate }">
-    <div
-      class="digit-window"
-      :class="{ animating: isAnimating }"
-    >
+  <div
+    class="digit-container" :class="{ 'show-seconds': showSeconds }"
+    :style="{ 'transform': enableTilt ? containerRotate : 'none', '--delay': `${delay || 0}ms` }"
+  >
+    <div class="digit-window" :class="{ animating: isAnimating }">
       <!-- 当前数字 -->
       <div class="digit-item">
         {{ displayValue }}
@@ -66,10 +68,11 @@ onMounted(() => {
   height: 1em;
   width: 0.8em;
   overflow: hidden;
-  opacity: 0.85;
   margin: 0 -0.12em;
   vertical-align: middle;
   transition: transform 0.6s linear;
+  mix-blend-mode: screen;
+  z-index: 1;
 }
 
 .digit-container.show-seconds {
@@ -86,7 +89,10 @@ onMounted(() => {
 /* 动画状态：向上平移 1em，露出下方的 nextValue */
 .digit-window.animating {
   transform: translateY(-1em);
-  transition: transform 0.8s cubic-bezier(0.18, 0.18, 0.43, 1.34);
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.18, 0.18, 0.43, 1.34);
+  transition-duration: 0.8s;
+  transition-delay: var(--delay);
 }
 
 .digit-item {

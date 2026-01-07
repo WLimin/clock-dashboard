@@ -12,7 +12,6 @@ export function useTime() {
   const s2 = ref(0)
   const lunar = ref<LunarInfo>(getLunarDate(new Date()))
   const lastUpdateDate = ref(new Date().toDateString())
-  const showSeconds = ref(true)
 
   let timer: number
 
@@ -58,6 +57,5 @@ export function useTime() {
     s1,
     s2,
     lunar,
-    showSeconds,
   }
 }

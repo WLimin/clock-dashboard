@@ -13,6 +13,19 @@ export const useConfigStore = defineStore('config', () => {
         entities: [],
       })
 
+  const clockConfig = ref({
+    /** 时钟颜色 */
+    color: '#ffffff',
+    /** 字重 */
+    fontWeight: 800,
+    /** 数字随机倾斜 */
+    enableTilt: true,
+    /** 显示秒钟 */
+    showSeconds: false,
+    /** 透明度 */
+    opacity: 0.9,
+  })
+
   // 2. 清理旧版 key
   if (oldHaConfig) {
     localStorage.removeItem('ha_config')
@@ -20,6 +33,7 @@ export const useConfigStore = defineStore('config', () => {
 
   return {
     haConfig,
+    clockConfig,
   }
 }, {
   persist: true,
