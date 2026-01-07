@@ -107,7 +107,6 @@ const showClockSettings = ref(false)
   background: linear-gradient(to bottom, #ffffff, rgba(255, 255, 255, 0.7));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-family: 'SF Pro Rounded', sans-serif;
 }
 
 .clock-display {

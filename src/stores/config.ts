@@ -21,7 +21,7 @@ export const useConfigStore = defineStore('config', () => {
     /** 数字随机倾斜 */
     enableTilt: true,
     /** 显示秒钟 */
-    showSeconds: false,
+    showSeconds: true,
     /** 透明度 */
     opacity: 0.9,
   })
