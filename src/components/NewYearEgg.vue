@@ -108,6 +108,21 @@ const isCelebrationPeriod = computed(() => {
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 let animationId: number | null = null
 
+// 生成爱心形状顶点
+function generateHeartPoints(numPoints: number) {
+  const points = []
+  const step = Math.PI * 2 / numPoints
+  for (let i = 0; i < numPoints; i++) {
+    const angle = step * i
+    const x = 16 * Math.pow(Math.sin(angle), 3);
+    const y = 13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle);
+    points.push({ x, y })
+  }
+  return points
+}
+
+const heartPoints = generateHeartPoints(50)   // 获取爱心形状的50个点
+
 class Firework {
   x: number
   y: number
@@ -118,7 +133,8 @@ class Firework {
   velocity: number
   slope: number // 斜率属性
   canvasWidth: number //边界
-
+  fireworkRadius: number //烟花半径 0.5 ~ 1.5
+  isArtHeart: boolean
 
   constructor(canvasWidth: number, canvasHeight: number) {
     this.x = Math.random() * canvasWidth
@@ -128,17 +144,18 @@ class Firework {
     this.velocity = 4 + Math.random() * 4
     this.slope = Math.random() * 1 - 0.5 // 随机斜率范围在-0.5到0.5之间
     this.canvasWidth = canvasWidth
+    this.fireworkRadius = Math.random() * 1 + 0.5
+    this.isArtHeart = (Math.random() * 10 > 8)  //爱心形状的概率
   }
 
   update() {
     if (!this.exploded) {
-      this.y -= this.velocity      
+      this.y -= this.velocity
       this.x += this.velocity * this.slope // 路线更新，爆发逻辑撞墙破
       if ((this.y <= this.targetY) || (this.x <= 0) || (this.x >= this.canvasWidth)) {
         this.explode()
       }
-    }
-    else {
+    } else {
       this.particles.forEach((p, i) => {
         p.update()
         if (p.alpha <= 0) {
@@ -150,8 +167,18 @@ class Firework {
 
   explode() {
     this.exploded = true
-    for (let i = 0; i < 50; i++) {
-      this.particles.push(new Particle(this.x, this.y, this.color))
+    if (this.isArtHeart) {
+      for (const point of heartPoints) {
+        // 放大尺寸并偏移中心点到合适位置
+        const x = Math.floor(2 * this.fireworkRadius * point.x + this.x)
+        const y = Math.floor(-2 * this.fireworkRadius * point.y + this.y)
+        this.particles.push(new Particle(x, y, this.color, false))          //来颗心脏
+        this.particles.push(new Particle(this.x, this.y, this.color, true)) //普通烟花
+      }
+    } else {
+      for (let i = 0; i < heartPoints.length; i++) {
+        this.particles.push(new Particle(this.x, this.y, this.color, true))
+      }
     }
   }
 
@@ -176,9 +203,10 @@ class Particle {
   vy: number
   alpha = 1
   gravity = 0.05
-  artType: number
+  isHeartNumber: Boolean
+  mixed: Boolean
 
-  constructor(x: number, y: number, color: string) {
+  constructor(x: number, y: number, color: string, mixed: Boolean) {
     this.x = x
     this.y = y
     this.color = color
@@ -186,15 +214,21 @@ class Particle {
     const speed = Math.random() * 3 + 1
     this.vx = Math.cos(angle) * speed
     this.vy = Math.sin(angle) * speed
-    this.artType = Math.random() * 5
+    this.isHeartNumber = (Math.random() * 5 >= 4.5) // (5-4.5)/5=1%
+    this.mixed = mixed
   }
 
   update() {
-    this.vx *= 0.98
-    this.vy *= 0.98
-    this.vy += this.gravity
-    this.x += this.vx
-    this.y += this.vy
+    if (this.mixed) {
+      this.vx *= 0.98
+      this.vy *= 0.98
+      this.vy += this.gravity
+      this.x += this.vx
+      this.y += this.vy
+    } else {
+      this.x -= this.gravity * 2
+      this.y += this.gravity * 2.4
+    }
     this.alpha -= 0.015
   }
 
@@ -202,8 +236,7 @@ class Particle {
     ctx.globalAlpha = this.alpha
     ctx.fillStyle = this.color
     ctx.beginPath()
-    if (this.artType >= 4.5) { // (5-4.5)/5=1%
-      // Draw a red heart shape using quadratic Bezier curve
+    if (this.mixed && this.isHeartNumber) { // Draw a red heart shape using quadratic Bezier curve
       ctx.fillStyle = 'red'
       ctx.moveTo(this.x - 3, this.y)
       ctx.bezierCurveTo(this.x - 5, this.y + 4, this.x - 2, this.y + 7, this.x, this.y + 10)
@@ -301,10 +334,12 @@ onUnmounted(() => {
 .scale-leave-active {
   transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
 .scale-enter-from {
   opacity: 0;
   transform: scale(0.3);
 }
+
 .scale-leave-to {
   opacity: 0;
   transform: scale(2);
@@ -319,9 +354,11 @@ onUnmounted(() => {
   0% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.1);
   }
+
   100% {
     transform: scale(1);
   }
