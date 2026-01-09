@@ -30,18 +30,31 @@ export const useWeatherStore = defineStore('weather', () => {
 
   async function fetchWeather(lat: number, lon: number) {
     try {
-      const [wData, aData] = await Promise.all([
-        fetchWeatherData(lat, lon),
-        fetchAirQualityData(lat, lon),
-      ])
-      weatherData.value = wData
-      airQualityData.value = aData
-      weatherInfo.value = mapWmoCode(wData.current.weather_code, wData.current.is_day === 1)
-      loading.value = false
+      const weatherPromise = fetchWeatherData(lat, lon)
+        .then((wData) => {
+          weatherData.value = wData
+          weatherInfo.value = mapWmoCode(wData.current.weather_code, wData.current.is_day === 1)
+        })
+        .catch((error) => {
+          console.error('Weather API error:', error)
+          weatherInfo.value.text = '接口错误'
+          weatherInfo.value.icon = mapWmoCode(-1).icon
+        })
+
+      const aqiPromise = fetchAirQualityData(lat, lon)
+        .then((aData) => {
+          airQualityData.value = aData
+        })
+        .catch((error) => {
+          console.error('Air Quality API error:', error)
+        })
+
+      await Promise.all([weatherPromise, aqiPromise])
     }
     catch (error) {
-      weatherInfo.value.text = '接口错误'
-      weatherInfo.value.icon = mapWmoCode(-1).icon
+      console.error('Update weather failed:', error)
+    }
+    finally {
       loading.value = false
     }
   }

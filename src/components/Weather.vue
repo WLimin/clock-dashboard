@@ -36,13 +36,13 @@ onUnmounted(() => {
 <template>
   <div
     id="weather-container"
-    class="weather-clickable px-12 grid grid-cols-1 md:grid-cols-3 gap-3 w-full transition-opacity duration-700"
+    class="weather-clickable px-4 sm:px-12 grid grid-cols-1 md:grid-cols-3 gap-3 w-full transition-opacity duration-700"
     :class="{ 'opacity-30': loading, 'opacity-100': !loading }"
     @click="showSettings = true"
   >
     <!-- 状态与定位 -->
     <div class="flex items-center justify-center md:justify-start gap-0">
-      <div id="weather-icon" class="w-28 h-28 drop-shadow-xl flex-shrink-0">
+      <div id="weather-icon" class="w-28 sm:h-28 flex-shrink-0">
         <img :src="weatherInfo.icon" :alt="weatherInfo.text" class="w-full h-full object-contain" draggable="false">
       </div>
       <div>
@@ -66,21 +66,21 @@ onUnmounted(() => {
           °C
         </div>
       </div>
-      <div class="flex flex-col items-end justify-between gap-2">
-        <span id="temp-max" class="text-3xl font-medium text-red-200">
+      <div class="flex flex-col items-end justify-between gap-2 text-3xl font-medium">
+        <span id="temp-max" class="text-red-200">
           {{ weatherData ? Math.round(Math.max(...weatherData.hourly.temperature_2m)) : '--' }}°
         </span>
-        <span id="temp-min" class="text-3xl font-medium text-blue-200">
+        <span id="temp-min" class="text-blue-200">
           {{ weatherData ? Math.round(Math.min(...weatherData.hourly.temperature_2m)) : '--' }}°
         </span>
       </div>
     </div>
 
     <!-- 环境数据 -->
-    <div class="flex flex-col justify-center items-center md:items-end gap-3 text-white text-3xl tabular-nums">
-      <div class="grid grid-cols-2 gap-y-3 gap-x-4">
+    <div class="flex flex-col justify-center items-center md:items-end sm:col-span-2 md:col-span-1 gap-3 text-white text-3xl tabular-nums">
+      <div class="w-full md:w-auto grid grid-cols-4 md:grid-cols-2 gap-y-3 gap-x-4">
         <!-- 湿度 -->
-        <div class="flex items-center justify-end gap-1">
+        <div class="flex flex-col sm:flex-row items-center justify-center sm:justify-end gap-1">
           <span id="humidity-val">
             {{ weatherData ? weatherData.current.relative_humidity_2m : '--' }}%
           </span>
@@ -88,12 +88,12 @@ onUnmounted(() => {
         </div>
 
         <!-- 空气质量 -->
-        <div class="flex items-center justify-end gap-1">
+        <div class="flex flex-col sm:flex-row items-center justify-center sm:justify-end gap-1">
           <div class="flex items-start gap-2">
             <span id="aqi-val">
               {{ airQualityData?.current?.us_aqi || '--' }}
             </span>
-            <span id="aqi-label" class="text-sm opacity-60 ml-[-6px]" :class="aqiInfo.color">
+            <span id="aqi-label" class="text-sm opacity-60 ml-[-6px] whitespace-nowrap" :class="aqiInfo.color">
               {{ aqiInfo?.label || '-' }}
             </span>
           </div>
@@ -101,7 +101,7 @@ onUnmounted(() => {
         </div>
 
         <!-- 体感温度 -->
-        <div class="flex items-center justify-end gap-1">
+        <div class="flex flex-col sm:flex-row items-center justify-center sm:justify-end gap-1">
           <span id="apparent-temp-val">
             {{ weatherData ? Math.round(weatherData.current.apparent_temperature) : '--' }}°C
           </span>
@@ -109,7 +109,7 @@ onUnmounted(() => {
         </div>
 
         <!-- 紫外线 -->
-        <div class="flex items-center justify-end gap-1">
+        <div class="flex flex-col sm:flex-row items-center justify-center sm:justify-end gap-1">
           <span id="uv-val">
             {{ weatherData ? Math.round(weatherData.hourly.uv_index[weatherData.current_hour_index]) : '--' }}
           </span>
