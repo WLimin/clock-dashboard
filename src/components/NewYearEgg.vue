@@ -122,7 +122,15 @@ function generateHeartPoints(numPoints: number) {
 }
 
 const heartPoints = generateHeartPoints(50)   // 获取爱心形状的50个点
+function rotatePoints(points: { x: number; y: number }[], angle: number): { x: number; y: number }[] {
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
 
+  return points.map(point => ({
+    x: point.x * cos - point.y * sin,
+    y: point.x * sin + point.y * cos
+  }));
+}
 class Firework {
   x: number
   y: number
@@ -135,6 +143,7 @@ class Firework {
   canvasWidth: number //边界
   fireworkRadius: number //烟花半径 0.5 ~ 1.5
   isArtHeart: boolean
+  rotatedHeartPoints: Array<any>
 
   constructor(canvasWidth: number, canvasHeight: number) {
     this.x = Math.random() * canvasWidth
@@ -142,10 +151,16 @@ class Firework {
     this.targetY = Math.random() * (canvasHeight * 0.5)
     this.color = `hsl(${Math.random() * 360}, 100%, 50%)`
     this.velocity = 4 + Math.random() * 4
-    this.slope = Math.random() * 1 - 0.5 // 随机斜率范围在-0.5到0.5之间
     this.canvasWidth = canvasWidth
     this.fireworkRadius = Math.random() * 1 + 0.5
     this.isArtHeart = (Math.random() * 10 > 8)  //爱心形状的概率
+    const angle = (Math.random() * 90 + 45) / 180 * Math.PI // 随机rad范围在-0.5到0.5之间
+    this.slope = Math.cos(angle)
+    if (this.isArtHeart) {
+      this.rotatedHeartPoints = rotatePoints(heartPoints, angle - Math.PI / 2); //尖尖朝下
+    } else {
+      this.rotatedHeartPoints = heartPoints;
+    }
   }
 
   update() {
@@ -168,7 +183,7 @@ class Firework {
   explode() {
     this.exploded = true
     if (this.isArtHeart) {
-      for (const point of heartPoints) {
+      for (const point of this.rotatedHeartPoints) {
         // 放大尺寸并偏移中心点到合适位置
         const x = Math.floor(2 * this.fireworkRadius * point.x + this.x)
         const y = Math.floor(-2 * this.fireworkRadius * point.y + this.y)
@@ -176,7 +191,7 @@ class Firework {
         this.particles.push(new Particle(this.x, this.y, this.color, true)) //普通烟花
       }
     } else {
-      for (let i = 0; i < heartPoints.length; i++) {
+      for (let i = 0; i < this.rotatedHeartPoints.length; i++) {
         this.particles.push(new Particle(this.x, this.y, this.color, true))
       }
     }
