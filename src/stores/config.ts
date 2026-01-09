@@ -17,7 +17,7 @@ export const useConfigStore = defineStore('config', () => {
     /** 时钟颜色 */
     color: '#ffffff',
     /** 字重 */
-    fontWeight: 800,
+    fontWeight: 700,
     /** 数字随机倾斜 */
     enableTilt: true,
     /** 显示秒钟 */

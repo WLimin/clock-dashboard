@@ -22,9 +22,9 @@ const baseDelay = computed(() => {
 </script>
 
 <template>
-  <div class="glass-panel h-full flex flex-col items-center justify-evenly text-white w-full">
+  <div class="glass-panel h-full flex flex-col items-center justify-evenly text-white w-full overflow-y-auto overflow-x-hidden">
     <!-- 日期与农历 -->
-    <div class="flex flex-col md:flex-row items-center md:items-start gap-6 w-full justify-center">
+    <div class="flex flex-col sm:flex-row items-center md:items-start gap-0 sm:gap-6 w-full justify-center">
       <div class="flex items-center gap-4">
         <div class="date-day-big">
           {{ now.getDate() }}
@@ -39,9 +39,9 @@ const baseDelay = computed(() => {
         </div>
       </div>
       <div class="hidden md:block w-px h-16 mx-16 self-center" />
-      <div class="flex flex-col items-center md:items-start mt-5" @click="$emit('showEggPreview')">
-        <span class="text-5xl font-medium text-white/90 tracking-wider">{{ lunar.fullDate }}</span>
-        <span class="text-4xl tracking-[0.2em] font-light opacity-70 mt-2">{{ lunar.year }}{{ lunar.month }}</span>
+      <div class="sm:h-32 flex flex-row-reverse sm:flex-col items-center sm:items-start justify-center" @click="$emit('showEggPreview')">
+        <span class="text-4xl sm:text-5xl opacity-70 sm:opacity-90 tracking-wider sm:mt-2">{{ lunar.fullDate }}</span>
+        <span class="text-4xl tracking-[0.2em] font-light opacity-70 sm:mt-1">{{ lunar.year }}{{ lunar.month }}</span>
       </div>
     </div>
 
@@ -137,11 +137,10 @@ const baseDelay = computed(() => {
   flex-wrap: nowrap !important;
   align-items: center;
   justify-content: center;
-  font-family: 'Huninn', sans-serif;
+  font-family: 'SFCompactRounded', sans-serif;
   font-size: 35vw; /* iOS 12 Fallback 1: 响应式比例 */
   font-size: 22rem; /* iOS 12 Fallback 2: 强制大字号 */
   font-size: clamp(10rem, 35vw, 25rem);
-  font-weight: 1000;
   line-height: 1.1;
   -webkit-text-stroke: 2px white; /* 恢复适中的描边加粗 */
 }

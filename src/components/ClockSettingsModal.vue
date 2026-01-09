@@ -33,7 +33,7 @@ const presetColors = [
 function handleRestoreDefault() {
   draft.value = {
     color: '#ffffff',
-    fontWeight: 800,
+    fontWeight: 700,
     enableTilt: true,
     showSeconds: false,
     opacity: 0.9,
@@ -60,7 +60,7 @@ function handleSaveAndClose() {
     <div class="absolute inset-0 bg-black/80" @click="$emit('close')" />
 
     <!-- Modal Content -->
-    <div class="relative w-full max-w-lg bg-neutral-900 border border-white/10 rounded-3xl p-6 pb-3 text-white">
+    <div class="relative max-w-lg bg-neutral-900 border border-white/10 rounded-3xl p-6 pb-3 text-white">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-2xl font-medium tracking-wide">
           时钟设置

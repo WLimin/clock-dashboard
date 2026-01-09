@@ -1,11 +1,68 @@
 @import '@fontsource/huninn';
 
 @font-face {
-  font-family: 'SF Pro Rounded';
+  font-family: 'SFCompactRounded';
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+  src: url('/fonts/SF-Pro/SFCompactRounded-Ultralight.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'SFCompactRounded';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url('/fonts/SF-Pro/SFCompactRounded-Thin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'SFCompactRounded';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/fonts/SF-Pro/SFCompactRounded-Light.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'SFCompactRounded';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/SF-Pro-Rounded-Lite.woff2') format('woff2');
+  src: url('/fonts/SF-Pro/SFCompactRounded-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'SFCompactRounded';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/SF-Pro/SFCompactRounded-Medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'SFCompactRounded';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/SF-Pro/SFCompactRounded-Semibold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'SFCompactRounded';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/SF-Pro/SFCompactRounded-Bold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'SFCompactRounded';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/SF-Pro/SFCompactRounded-Heavy.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'SFCompactRounded';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('/fonts/SF-Pro/SFCompactRounded-Black.woff2') format('woff2');
 }
 
 @tailwind base;

@@ -2,7 +2,7 @@
 
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](LICENSE)
 [![Vue](https://img.shields.io/badge/vue-3.4-brightgreen.svg)](https://vuejs.org/)
-[![Vite](https://img.shields.io/badge/vite-5.0-blueviolet.svg)](https://vitejs.dev/)
+[![Vite](https://img.shields.io/badge/vite-7.0-blueviolet.svg)](https://vitejs.dev/)
 [![releases](https://img.shields.io/github/v/release/teojs/clock-dashboard?color=green&label=releases)](https://github.com/teojs/clock-dashboard/releases)
 ![visitors](https://visitor-badge.laobi.icu/badge?page_id=teojs.clock-dashboard)
 
@@ -39,10 +39,10 @@
 
 ## 🌟 特性
 
-- **动态数字时钟**：滚动动画和随机倾斜效果，使用了[SF Pro Rounded](https://developer.apple.com/fonts/)字体。
-- **实时天气**：基于[Open-Meteo](https://open-meteo.com/)，根据地理位置或 IP 自动获取天气、温度、湿度。
+- **动态数字时钟**：滚动动画和随机倾斜效果，使用了[SF Compact Rounded](https://developer.apple.com/fonts/)字体。
+- **实时天气**：天气数据来自[Open-Meteo](https://open-meteo.com/)，根据地理位置或通过[BigDataCloud](https://www.bigdatacloud.com/) 查询 IP 换取地理位置来获取天气、温度、湿度。
 
-  天气右边4个指标是：湿度、空气指数（US AQI）、体感温度、紫外线指数。
+  天气右边4个指标是：湿度、[空气指数（US AQI）](https://open-meteo.com/en/docs/air-quality-api)、体感温度、紫外线指数。
 
   点击底部天气区域可以进行设置。
 

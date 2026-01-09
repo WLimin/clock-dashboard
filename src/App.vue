@@ -152,13 +152,13 @@ onUnmounted(() => {
       :style="{ transform: `translateX(-${currentPage * 100}vw)`, width: '300vw' }"
     >
       <div class="slide-page w-screen h-screen flex items-center justify-center flex-shrink-0">
-        <SmartHomeView />
+        <SmartHomeView v-if="currentPage === 0" />
       </div>
       <div class="slide-page w-screen h-screen flex items-center justify-center flex-shrink-0">
         <ClockWeatherView @showEggPreview="toggleIsPreviewMode" />
       </div>
       <div class="slide-page w-screen h-screen flex items-center justify-center flex-shrink-0">
-        <CalendarView ref="calendarRef" />
+        <CalendarView v-if="currentPage === 2" ref="calendarRef" />
       </div>
     </div>
 

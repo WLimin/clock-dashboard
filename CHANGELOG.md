@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.16.2](https://github.com/teojs/clock-dashboard/compare/v1.16.1...v1.16.2) (2026-01-08)
+
+
+### Bug Fixes
+
+* conditionally render views in App.vue based on currentPage to improve navigation ([d570d3c](https://github.com/teojs/clock-dashboard/commit/d570d3cb914fb9d8ee941d3b5b2a4efa500498e0))
+
+### [1.16.1](https://github.com/teojs/clock-dashboard/compare/v1.16.0...v1.16.1) (2026-01-08)
+
+
+### Features
+
+* add SFCompactRounded font family and update font weights in styles for improved typography ([7d6cea3](https://github.com/teojs/clock-dashboard/commit/7d6cea323b56b5b116b09d2f56602cd85857d541))
+
 ## [1.16.0](https://github.com/teojs/clock-dashboard/compare/v1.15.4...v1.16.0) (2026-01-07)
 
 
