@@ -79,6 +79,7 @@ const generateAndPlayTTS = async (text: string): Promise<Blob> => {
     return blob;
   } catch (error) {
     console.error('Error generating TTS:', error);
+    return new Blob;
   }
 }
 
