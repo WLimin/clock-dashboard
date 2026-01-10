@@ -63,12 +63,13 @@ onMounted(() => {
 
 <style scoped>
 .digit-container {
+  --digit-item-height: 0.8em;
   position: relative;
   display: inline-block;
-  height: 1em;
+  height: var(--digit-item-height);
   width: 0.8em;
   overflow: hidden;
-  margin: 0 -0.12em;
+  margin: 0 -0.18em;
   vertical-align: middle;
   transition: transform 0.6s linear;
   mix-blend-mode: screen;
@@ -76,7 +77,7 @@ onMounted(() => {
 }
 
 .digit-container.show-seconds {
-  margin: 0 -0.16em;
+  margin: 0 -0.18em;
 }
 
 .digit-window {
@@ -86,9 +87,8 @@ onMounted(() => {
   transform: translateY(0);
 }
 
-/* 动画状态：向上平移 1em，露出下方的 nextValue */
 .digit-window.animating {
-  transform: translateY(-1em);
+  transform: translateY(calc(var(--digit-item-height) * -1));
   transition-property: transform;
   transition-timing-function: cubic-bezier(0.18, 0.18, 0.43, 1.34);
   transition-duration: 0.8s;
@@ -97,8 +97,8 @@ onMounted(() => {
 
 .digit-item {
   display: block;
-  height: 1em;
-  line-height: 1em;
+  height: var(--digit-item-height);
+  line-height: var(--digit-item-height);
   text-align: center;
   flex-shrink: 0;
 }

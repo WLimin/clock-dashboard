@@ -91,7 +91,7 @@ const baseDelay = computed(() => {
         <div class="flex flex-col mt-2">
           <!-- 将秒显示为1/3大小，两个数字排成1列，实现向上翻页效果。 -->
           <span class="flex flex-col items-center md:items-start mt-5">
-            <div class="second-digit">&nbsp;</div>
+            <div class="second-digit" style="font-size: 10%">⏰️</div>
             <Digit
               class="second-digit opacity-60" :value="s1" :show-seconds="clockConfig.showSeconds"
               :trigger="now.getTime()"
@@ -137,26 +137,23 @@ const baseDelay = computed(() => {
   flex-wrap: nowrap !important;
   align-items: center;
   justify-content: center;
-  font-family: 'SFCompactRounded', sans-serif;
-  font-size: 35vw; /* iOS 12 Fallback 1: 响应式比例 */
-  font-size: 22rem; /* iOS 12 Fallback 2: 强制大字号 */
-  font-size: clamp(10rem, 35vw, 25rem);
-  line-height: 1.1;
+  font-family: 'SFCompactRounded', 'Huninn', sans-serif;
+  font-size: min(26rem, 46vw);
   -webkit-text-stroke: 2px white; /* 恢复适中的描边加粗 */
 }
 
 .clock-display.with-seconds {
-  font-size: 28vw; /* iOS 12 Fallback 1 */
+  font-size: min(20rem, 28vw);
 }
 
 .clock-separator {
+  font-size: 95%;
   opacity: 0.98;
   text-align: center;
-  margin: 0 -0.1em; /* 适当重叠，但比数字间距小 */
-  font-weight: 700;
+  margin: 0 -0.08em; /* 适当重叠，但比数字间距小 */
   display: flex;
   justify-content: center;
-  line-height: 1;
+  line-height: 0.8em;
   position: relative;
   top: -0.05em; /* 稍微上移一点，视觉上更垂直居中 */
   z-index: 10;
@@ -166,10 +163,10 @@ const baseDelay = computed(() => {
 .second-separator,
 .second-digit {
   opacity: 0.6;
-  font-size: 12vw; /* iOS 12 Fallback 1: 响应式比例 */
-  font-size: 7rem; /* iOS 12 Fallback 2: 强制大字号 */
   align-content: center;
-}
+  font-family: 'SFCompactRounded', 'Huninn', sans-serif;
+  font-size: 28%;
+  }
 
 .brightness {
   filter: brightness(1.25);
