@@ -91,7 +91,7 @@ const baseDelay = computed(() => {
         <div class="flex flex-col mt-2">
           <!-- 将秒显示为1/3大小，两个数字排成1列，实现向上翻页效果。 -->
           <span class="flex flex-col items-center md:items-start mt-5">
-            <div class="second-digit">&nbsp;</div>
+            <div class="second-digit" style="font-size: 10%">⏰️</div>
             <Digit
               class="second-digit opacity-60" :value="s1" :show-seconds="clockConfig.showSeconds"
               :trigger="now.getTime()"
@@ -163,10 +163,10 @@ const baseDelay = computed(() => {
 .second-separator,
 .second-digit {
   opacity: 0.6;
-  font-size: 12vw; /* iOS 12 Fallback 1: 响应式比例 */
-  font-size: 7rem; /* iOS 12 Fallback 2: 强制大字号 */
   align-content: center;
-}
+  font-family: 'SFCompactRounded', 'Huninn', sans-serif;
+  font-size: 28%;
+  }
 
 .brightness {
   filter: brightness(1.25);
