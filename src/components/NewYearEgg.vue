@@ -218,23 +218,27 @@ class Particle {
   vy: number
   alpha = 1
   gravity = 0.05
-  isHeartNumber: Boolean
-  mixed: Boolean
+  isHeartNumber: boolean
+  isExploded: boolean
+  radius = 1.5
 
-  constructor(x: number, y: number, color: string, mixed: Boolean) {
+  constructor(x: number, y: number, color: string, isExploded: boolean) {
     this.x = x
     this.y = y
-    this.color = color
     const angle = Math.random() * Math.PI * 2
     const speed = Math.random() * 3 + 1
     this.vx = Math.cos(angle) * speed
     this.vy = Math.sin(angle) * speed
     this.isHeartNumber = (Math.random() * 5 >= 4.5) // (5-4.5)/5=1%
-    this.mixed = mixed
+    this.isExploded = isExploded
+    if (isExploded)
+      this.color = color
+    else
+      this.color = 'red'
   }
 
   update() {
-    if (this.mixed) {
+    if (this.isExploded) {
       this.vx *= 0.98
       this.vy *= 0.98
       this.vy += this.gravity
@@ -243,6 +247,7 @@ class Particle {
     } else {
       this.x -= this.gravity * 2
       this.y += this.gravity * 2.4
+      this.radius += 0.03
     }
     this.alpha -= 0.015
   }
@@ -251,14 +256,14 @@ class Particle {
     ctx.globalAlpha = this.alpha
     ctx.fillStyle = this.color
     ctx.beginPath()
-    if (this.mixed && this.isHeartNumber) { // Draw a red heart shape using quadratic Bezier curve
+    if (this.isExploded && this.isHeartNumber) { // Draw a red heart shape using quadratic Bezier curve
       ctx.fillStyle = 'red'
       ctx.moveTo(this.x - 3, this.y)
       ctx.bezierCurveTo(this.x - 5, this.y + 4, this.x - 2, this.y + 7, this.x, this.y + 10)
       ctx.bezierCurveTo(this.x + 2, this.y + 7, this.x + 5, this.y + 4, this.x + 3, this.y)
       ctx.closePath()
     } else {
-      ctx.arc(this.x, this.y, 1.5, 0, Math.PI * 2)
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
     }
     ctx.fill()
     ctx.globalAlpha = 1
