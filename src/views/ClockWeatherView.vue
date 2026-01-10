@@ -91,7 +91,7 @@ const baseDelay = computed(() => {
         <div class="flex flex-col mt-2">
           <!-- 将秒显示为1/3大小，两个数字排成1列，实现向上翻页效果。 -->
           <span class="flex flex-col items-center md:items-start mt-5">
-            <div class="second-digit" style="font-size: 10%">⏰️</div>
+            <div class="second-digit" style="font-size: 10%">&nbsp;</div>
             <Digit
               class="second-digit opacity-60" :value="s1" :show-seconds="clockConfig.showSeconds"
               :trigger="now.getTime()"
