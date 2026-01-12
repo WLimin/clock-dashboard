@@ -6,6 +6,7 @@ import Digit from '../components/Digit.vue'
 import Weather from '../components/Weather.vue'
 import { useTime } from '../hooks/useTime'
 import { useConfigStore } from '../stores/config'
+import TimeAnnouncement from '../components/TimeAnnouncement.vue'
 
 const configStore = useConfigStore()
 const { clockConfig } = storeToRefs(configStore)
@@ -91,7 +92,7 @@ const baseDelay = computed(() => {
         <div class="flex flex-col mt-2">
           <!-- 将秒显示为1/3大小，两个数字排成1列，实现向上翻页效果。 -->
           <span class="flex flex-col items-center md:items-start mt-5">
-            <div class="second-digit" style="font-size: 10%">&nbsp;</div>
+            <TimeAnnouncement class="second-digit" style="font-size: 10%" />
             <Digit
               class="second-digit opacity-60" :value="s1" :show-seconds="clockConfig.showSeconds"
               :trigger="now.getTime()"
