@@ -36,9 +36,10 @@ function handleRestoreDefault() {
     color: '#ffffff',
     fontWeight: 700,
     enableTilt: true,
-    showSeconds: false,
+    showSeconds: true,
     opacity: 0.9,
     is24Hour: true,
+    enableTimeAnnouncement: true,
   }
 }
 
