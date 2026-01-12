@@ -33,15 +33,15 @@ const baseDelay = computed(() => {
           <span class="text-5xl tracking-[0.2em] opacity-90 uppercase">
             {{ now.toLocaleDateString('zh-CN', { weekday: 'long' }) }}
           </span>
-          <span class="text-4xl tracking-[0.2em] font-light opacity-70 mt-1">
+          <span class="text-4xl tracking-[0.2em] font-light opacity-70 mt-2">
             {{ now.getFullYear() }}年{{ now.getMonth() + 1 }}月
           </span>
         </div>
       </div>
-      <div class="hidden md:block w-px h-16 mx-16 self-center" />
+      <div class="hidden md:block w-px h-16 mx-8 self-center" />
       <div class="sm:h-32 flex flex-row-reverse sm:flex-col items-center sm:items-start justify-center" @click="$emit('showEggPreview')">
         <span class="text-4xl sm:text-5xl opacity-70 sm:opacity-90 tracking-wider sm:mt-2">{{ lunar.fullDate }}</span>
-        <span class="text-4xl tracking-[0.2em] font-light opacity-70 sm:mt-1">{{ lunar.year }}{{ lunar.month }}</span>
+        <span class="text-4xl tracking-[0.2em] font-light opacity-70 sm:mt-2">{{ lunar.year }}({{ lunar.yearShengxiao }})年{{ lunar.month }}月</span>
       </div>
     </div>
 

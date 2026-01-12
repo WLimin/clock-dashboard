@@ -12,7 +12,7 @@ export default defineConfig({
   plugins: [
     vue(),
     legacy({
-      targets: ['ios >= 12'],
+      targets: ['ios >= 9'],
       additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
     }),
     VitePWA({
