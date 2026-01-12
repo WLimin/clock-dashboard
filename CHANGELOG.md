@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.17.0](https://github.com/teojs/clock-dashboard/compare/v1.16.3...v1.17.0) (2026-01-11)
+
+
+### Features
+
+* add holiday support to lunar date calculations and update CalendarView for holiday display ([bfa877f](https://github.com/teojs/clock-dashboard/commit/bfa877fc060de08e6e1799c64ec4d6349222b12f))
+* implement AlmanacModal component for lunar date display and enhance LunarInfo type with additional properties ([43c9ec8](https://github.com/teojs/clock-dashboard/commit/43c9ec8ee4183f1d9119e4b1a8a41ea865e3af8f))
+
+
+### Bug Fixes
+
+* update iOS target version in Vite configuration from 12 to 9 for better compatibility ([ff33eb4](https://github.com/teojs/clock-dashboard/commit/ff33eb4245f7002a0a2da6e4b12a0c95dd7e9351))
+
 ### [1.16.3](https://github.com/teojs/clock-dashboard/compare/v1.16.2...v1.16.3) (2026-01-09)
 
 ### [1.16.2](https://github.com/teojs/clock-dashboard/compare/v1.16.1...v1.16.2) (2026-01-08)
