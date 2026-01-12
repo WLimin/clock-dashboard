@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { text } from 'stream/consumers';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useConfigStore } from '../stores/config'
@@ -29,10 +28,15 @@ interface OllamaResponse {
     total_tokens: number;
   };
 }
+const props = defineProps<{
+  doTimeAnnouce: boolean
+}>()
 
-interface TTSResponse {
-  url: string;
-}
+watch(() => props.doTimeAnnouce, (isTimeAnnouce) => {
+  if (isTimeAnnouce) {
+    announceTimeNow()
+  }
+})
 
 const showAvatar = ref('🐓');
 const audioPlayer = ref<HTMLAudioElement | null>(null);
@@ -113,7 +117,7 @@ const announceTime = async (time: string): Promise<void> => {
   generateTTS(greetingText).then(blob => { audioFile = blob })
 };
 
-function announceTimeNow() {
+const announceTimeNow = () => {
   console.log("announceTimeNow")
   const currentTime = new Date();
   setTimeout(async () => {

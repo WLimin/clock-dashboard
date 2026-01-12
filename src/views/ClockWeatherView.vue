@@ -16,6 +16,7 @@ const { h1, h2, m1, m2, s1, s2, lunar, now } = useTime({
 })
 
 const showClockSettings = ref(false)
+const announceTimeNow = ref(false)
 
 const baseDelay = computed(() => {
   return clockConfig.value.showSeconds ? 0 : -2
@@ -91,8 +92,8 @@ const baseDelay = computed(() => {
         <div class="hidden md:block w-px mx-2 self-center" />
         <div class="flex flex-col mt-2">
           <!-- 将秒显示为1/3大小，两个数字排成1列，实现向上翻页效果。 -->
-          <span class="flex flex-col items-center md:items-start mt-5">
-            <TimeAnnouncement class="second-digit" style="font-size: 10%" />
+          <span class="flex flex-col items-center md:items-start mt-5" @click="()=>{announceTimeNow = !announceTimeNow}">
+            <TimeAnnouncement class="second-digit" style="font-size: 10%" :doTimeAnnouce="announceTimeNow" />
             <Digit
               class="second-digit opacity-60" :value="s1" :show-seconds="clockConfig.showSeconds"
               :trigger="now.getTime()"
