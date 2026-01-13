@@ -18,7 +18,7 @@ const { weatherData, showRainEffect, showThunderEffect, showSnowEffect } = store
 const isPreviewMode = ref(false)
 
 function toggleIsPreviewMode() {
-  isPreviewMode.value = !isPreviewMode.value
+  isPreviewMode.value = !isPreviewMode
 }
 
 const isSwiping = ref(false)
