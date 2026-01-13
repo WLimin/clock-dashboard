@@ -22,7 +22,7 @@ function toggleIsPreviewMode() {
   isPreviewMode.value = true
   setTimeout(() => {
     isPreviewMode.value = false;
-  }, 65 * 1000);
+  }, 80 * 1000);
 }
 
 const isSwiping = ref(false)

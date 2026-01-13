@@ -38,16 +38,20 @@ watch(() => props.doTimeAnnouce, (isTimeAnnouce) => {
   }
 })
 
-const showAvatar = ref('🐓');
+const showAvatar = ref('💤');
 const audioPlayer = ref<HTMLAudioElement | null>(null);
 
 let audioFile: Blob = new Blob;
 let intervalId: NodeJS.Timeout | null = null;
+let inPlayAudio: boolean = false;
+let inGenText: boolean = false;
+let inGenTts: boolean = false;
 
 const fetchGreetingText = async (time: string, isNow: boolean): Promise<string> => {
-  const prompt=`生成约50字的整点报时用的心情祝福场景文本，保留当前小时。当前时间为${time}`
-  const promptNow=`当前时间为${time}。报时，并生成约50字，和当前时间相关的心情祝福场景文本。`
-  let inputStr = isNow ? promptNow :prompt;
+  inGenText = true;
+  const prompt = `生成约50字的整点报时用的心情祝福场景文本，保留当前小时。当前时间为${time}`
+  const promptNow = `当前时间为${time}。报时，并生成约50字，和当前时间相关的心情场景文本。`
+  let inputStr = isNow ? promptNow : prompt;
   try {
     const response = await fetch('http://172.18.0.160:11434/v1/responses', {
       method: 'POST',
@@ -56,25 +60,28 @@ const fetchGreetingText = async (time: string, isNow: boolean): Promise<string> 
       },
       body: JSON.stringify({
         model: 'qwen2.5:latest',
-        input:  inputStr
+        input: inputStr
       }),
     });
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
     const data = await response.json() as OllamaResponse;
-    const text=data.output[0].content[0].text;
-    console.log("Text",text)
+    const text = data.output[0].content[0].text;
+    console.log("Text", text)
+    inGenText = false;
     return text;
 
   } catch (error) {
     console.error('Error fetching greeting text:', error);
+    inGenText = false;
     return `当前时间为${time}`;
   }
 }
 
 const generateTTS = async (text: string): Promise<Blob> => {
   console.log("GenerateTts")
+  inGenTts = true;
   try {
     const response = await fetch('http://172.18.0.180:8000/v1/audio/speech', {
       method: 'POST',
@@ -94,9 +101,11 @@ const generateTTS = async (text: string): Promise<Blob> => {
     }
     const blob = await response.blob();
     console.log("GenerateTts done!")
+    inGenTts = false;
     return blob;
   } catch (error) {
     console.error('Error generating TTS:', error);
+    inGenTts = false;
     return new Blob;
   }
 }
@@ -106,7 +115,7 @@ const playAudio = async (audioBlob: Blob): Promise<void> => {
   if (!audioPlayer.value) {
     return;
   }
-  if (audioBlob.size === 0) { 
+  if (audioBlob.size === 0) {
     return;
   }
   const audioUrl = URL.createObjectURL(audioBlob);
@@ -127,7 +136,7 @@ const announceTimeNow = () => {
   const currentTime = new Date();
   const timeStr = currentTime.toLocaleString();
   console.log("announceTimeNow:", timeStr)
-  
+
   setTimeout(async () => {
     const greetingText = await fetchGreetingText(timeStr, true);
     generateTTS(greetingText).then(blob => { playAudio(blob) })
@@ -146,9 +155,8 @@ onMounted(() => {
     const isTimeAnnounce = ((clockConfig.value.enableTimeAnnouncement) && (8 <= hNow && hNow < 19))
     //提前4分钟生成整点报时内容(只用CPU生成文本大约2分钟，合成语音1分钟)
     const isTimeGenAnnounce = (mNow === 56 && sNow === 0)
-    const isHourMatch = (mNow === 59 && sNow === 55)
+    const isHourMatch = (mNow === 59 && sNow === 58)
     if (isTimeAnnounce) {
-      showAvatar.value = '⏰️';
       if (isTimeGenAnnounce) {
         const currentTime = `${hNow + 1}:00`;
         setTimeout(() => {
@@ -160,10 +168,31 @@ onMounted(() => {
           playAudio(audioFile)
         }, 1000); // 1秒后执行
       }
+    }
+    if (isTimeAnnounce) {
+      showAvatar.value = '🔊';
     } else {
-      showAvatar.value = '🐓';
+      showAvatar.value = '💤';
+    }
+    if (inGenText) {
+      showAvatar.value = '🤔';
+    }
+    if (inGenTts) {
+      showAvatar.value = '💬';
+    }
+    if (inPlayAudio) {
+      showAvatar.value = '🎺';
     }
   }, 1000); // Update every Seconed
+  const audio = document.querySelector("audio");
+  if (audio) {
+    audio.onplay = () => {
+      inPlayAudio = true;
+    };
+    audio.onpause = () => {
+      inPlayAudio = false;
+    };
+  }
 })
 
 onUnmounted(() => {
@@ -173,16 +202,14 @@ onUnmounted(() => {
 })
 </script>
 <template>
-  <div @click.native="announceTimeNow">
+  <div class="avatar" @click.native="announceTimeNow">
     {{ showAvatar }}
     <audio ref="audioPlayer"></audio>
   </div>
 </template>
 
 <style scoped>
-/* 添加一些样式 */
-img {
-  width: 100px;
-  height: 100px;
+.avatar {
+  font-size: min(20rem, 24vw);
 }
 </style>
