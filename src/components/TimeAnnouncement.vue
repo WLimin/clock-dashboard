@@ -203,7 +203,7 @@ onUnmounted(() => {
 </script>
 <template>
   <div class="avatar" @click.native="announceTimeNow">
-    {{ showAvatar }}
+    &nbsp;{{ showAvatar }}
     <audio ref="audioPlayer"></audio>
   </div>
 </template>
