@@ -1,4 +1,7 @@
 <script setup lang="ts">
+// 整点语音报时。
+// 需要本地ollama部署的qwen2.5及cosy-voice支持。
+
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useConfigStore } from '../stores/config'
@@ -6,6 +9,7 @@ import { useConfigStore } from '../stores/config'
 const configStore = useConfigStore()
 const { clockConfig } = storeToRefs(configStore)
 
+//本地运行的Ollama服务
 interface OllamaResponse {
   id: string;
   object: string;
@@ -43,6 +47,7 @@ const audioPlayer = ref<HTMLAudioElement | null>(null);
 
 let audioFile: Blob = new Blob;
 let intervalId: NodeJS.Timeout | null = null;
+//下面3个用于决定Avatar图标
 let inPlayAudio: boolean = false;
 let inGenText: boolean = false;
 let inGenTts: boolean = false;
@@ -145,8 +150,6 @@ const announceTimeNow = () => {
 onMounted(() => {
   intervalId = setInterval(() => {
     const t = new Date();
-    const monthNow = t.getMonth()
-    const dateNow = t.getDate()
     const hNow = t.getHours()
     const mNow = t.getMinutes()
     const sNow = t.getSeconds()
@@ -155,6 +158,7 @@ onMounted(() => {
     const isTimeAnnounce = ((clockConfig.value.enableTimeAnnouncement) && (8 <= hNow && hNow < 19))
     //提前4分钟生成整点报时内容(只用CPU生成文本大约2分钟，合成语音1分钟)
     const isTimeGenAnnounce = (mNow === 56 && sNow === 0)
+    //整点报时
     const isHourMatch = (mNow === 59 && sNow === 58)
     if (isTimeAnnounce) {
       if (isTimeGenAnnounce) {
@@ -184,6 +188,7 @@ onMounted(() => {
       showAvatar.value = '🎺';
     }
   }, 1000); // Update every Seconed
+  //安装事件钩子，更新图标
   const audio = document.querySelector("audio");
   if (audio) {
     audio.onplay = () => {
@@ -203,7 +208,7 @@ onUnmounted(() => {
 </script>
 <template>
   <div class="avatar" @click.native="announceTimeNow">
-    {{ showAvatar }}
+    &nbsp;{{ showAvatar }}
     <audio ref="audioPlayer"></audio>
   </div>
 </template>
