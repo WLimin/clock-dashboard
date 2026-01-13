@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { text } from 'stream/consumers';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useConfigStore } from '../stores/config'
+
+const configStore = useConfigStore()
+const { clockConfig } = storeToRefs(configStore)
 
 interface OllamaResponse {
   id: string;
@@ -24,15 +28,26 @@ interface OllamaResponse {
     total_tokens: number;
   };
 }
+const props = defineProps<{
+  doTimeAnnouce: boolean
+}>()
 
-interface TTSResponse {
-  url: string;
-}
+watch(() => props.doTimeAnnouce, (isTimeAnnouce) => {
+  if (isTimeAnnouce) {
+    announceTimeNow()
+  }
+})
 
-const showAvatar = ref(false);
+const showAvatar = ref('🐓');
+const audioPlayer = ref<HTMLAudioElement | null>(null);
+
+let audioFile: Blob = new Blob;
 let intervalId: NodeJS.Timeout | null = null;
 
-const fetchGreetingText = async (time: string): Promise<string> => {
+const fetchGreetingText = async (time: string, isNow: boolean): Promise<string> => {
+  const prompt=`生成约50字的整点报时用的心情祝福场景文本，保留当前小时。当前时间为${time}`
+  const promptNow=`当前时间为${time}。报时，并生成约50字，和当前时间相关的心情祝福场景文本。`
+  let inputStr = isNow ? promptNow :prompt;
   try {
     const response = await fetch('http://172.18.0.160:11434/v1/responses', {
       method: 'POST',
@@ -41,7 +56,7 @@ const fetchGreetingText = async (time: string): Promise<string> => {
       },
       body: JSON.stringify({
         model: 'qwen2.5:latest',
-        input: `生成30字的整点报时用的心情问候文本。当前时间为${time}`
+        input:  inputStr
       }),
     });
     if (!response.ok) {
@@ -49,6 +64,7 @@ const fetchGreetingText = async (time: string): Promise<string> => {
     }
     const data = await response.json() as OllamaResponse;
     const text=data.output[0].content[0].text;
+    console.log("Text",text)
     return text;
 
   } catch (error) {
@@ -57,7 +73,8 @@ const fetchGreetingText = async (time: string): Promise<string> => {
   }
 }
 
-const generateAndPlayTTS = async (text: string): Promise<Blob> => {
+const generateTTS = async (text: string): Promise<Blob> => {
+  console.log("GenerateTts")
   try {
     const response = await fetch('http://172.18.0.180:8000/v1/audio/speech', {
       method: 'POST',
@@ -76,6 +93,7 @@ const generateAndPlayTTS = async (text: string): Promise<Blob> => {
       throw new Error('Network response was not ok');
     }
     const blob = await response.blob();
+    console.log("GenerateTts done!")
     return blob;
   } catch (error) {
     console.error('Error generating TTS:', error);
@@ -84,56 +102,80 @@ const generateAndPlayTTS = async (text: string): Promise<Blob> => {
 }
 
 const playAudio = async (audioBlob: Blob): Promise<void> => {
-  const audioUrl = URL.createObjectURL(audioBlob);
-  const audioElement = document.createElement('audio');
-  audioElement.src = audioUrl;
-  audioElement.play();
-};
-    // const playAudio = async () => {
-    //   if (!audioPlayer.value) return;
-
-    //   const text = await fetchGreetingText();
-    //   const audioFile = await generateTTS(text);
-
-    //   if (audioFile) {
-    //     audioPlayer.value.srcObject = audioFile;
-    //     audioPlayer.value.play().catch(error => {
-    //       console.error('Error playing audio:', error);
-    //     });
-    //   }
-    // };
-
-const updateTime = async () => {
-  const now = new Date();
-  const currentHour = now.getHours().toString().padStart(2, '0');
-  const currentTime = `${currentHour}:00`;
-
-  if (8 <= parseInt(currentHour) && parseInt(currentHour) < 19) {
-    showAvatar.value = true;
-
-    const greetingText = await fetchGreetingText(currentTime);
-    generateAndPlayTTS(greetingText).then(blob => {
-      playAudio(blob);
-    });
-  } else {
-    showAvatar.value = false;
+  console.log("playAudio")
+  if (!audioPlayer.value) {
+    return;
   }
-}
+  if (audioBlob.size === 0) { 
+    return;
+  }
+  const audioUrl = URL.createObjectURL(audioBlob);
+  audioPlayer.value.src = audioUrl;
+  audioPlayer.value.play().catch(error => {
+    console.error('Error playing audio:', error);
+  });
+};
 
+// 生成整点报时的语音，等待播放
+const announceTime = async (time: string): Promise<void> => {
+  console.log("announceTime:", time)
+  const greetingText = await fetchGreetingText(time, false);
+  generateTTS(greetingText).then(blob => { audioFile = blob })
+};
+
+const announceTimeNow = () => {
+  const currentTime = new Date();
+  const timeStr = currentTime.toLocaleString();
+  console.log("announceTimeNow:", timeStr)
+  
+  setTimeout(async () => {
+    const greetingText = await fetchGreetingText(timeStr, true);
+    generateTTS(greetingText).then(blob => { playAudio(blob) })
+  }, 1 * 1000); // 1秒后执行
+}
 onMounted(() => {
-  updateTime();
-  intervalId = setInterval(updateTime, 3600000); // Update every hour
+  intervalId = setInterval(() => {
+    const t = new Date();
+    const monthNow = t.getMonth()
+    const dateNow = t.getDate()
+    const hNow = t.getHours()
+    const mNow = t.getMinutes()
+    const sNow = t.getSeconds()
+
+    // 是自动报时时段  
+    const isTimeAnnounce = ((clockConfig.value.enableTimeAnnouncement) && (8 <= hNow && hNow < 19))
+    //提前4分钟生成整点报时内容(只用CPU生成文本大约2分钟，合成语音1分钟)
+    const isTimeGenAnnounce = (mNow === 56 && sNow === 0)
+    const isHourMatch = (mNow === 59 && sNow === 55)
+    if (isTimeAnnounce) {
+      showAvatar.value = '⏰️';
+      if (isTimeGenAnnounce) {
+        const currentTime = `${hNow + 1}:00`;
+        setTimeout(() => {
+          announceTime(currentTime);
+        }, 2 * 1000); // 2秒后执行
+      }
+      if (isHourMatch) {
+        setTimeout(() => {
+          playAudio(audioFile)
+        }, 1000); // 1秒后执行
+      }
+    } else {
+      showAvatar.value = '🐓';
+    }
+  }, 1000); // Update every Seconed
 })
 
-
 onUnmounted(() => {
-  if (intervalId) clearInterval(intervalId);
+  if (intervalId) {
+    clearInterval(intervalId);
+  }
 })
 </script>
 <template>
-  <div v-if="showAvatar">
-    ⏰️
-    <!-- audio ref="audioPlayer"></audio -->
+  <div @click.native="announceTimeNow">
+    {{ showAvatar }}
+    <audio ref="audioPlayer"></audio>
   </div>
 </template>
 

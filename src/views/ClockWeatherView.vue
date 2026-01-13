@@ -6,6 +6,7 @@ import Digit from '../components/Digit.vue'
 import Weather from '../components/Weather.vue'
 import { useTime } from '../hooks/useTime'
 import { useConfigStore } from '../stores/config'
+import TimeAnnouncement from '../components/TimeAnnouncement.vue'
 
 const configStore = useConfigStore()
 const { clockConfig } = storeToRefs(configStore)
@@ -15,10 +16,18 @@ const { h1, h2, m1, m2, s1, s2, lunar, now } = useTime({
 })
 
 const showClockSettings = ref(false)
+const announceTimeNow = ref(false)
 
 const baseDelay = computed(() => {
   return clockConfig.value.showSeconds ? 0 : -2
 })
+
+const trigTalkTimeNow = () => {
+  announceTimeNow.value = !announceTimeNow;
+  setTimeout(() => {
+    announceTimeNow.value = false
+  }, 5 * 1000); // 5秒后执行
+}
 </script>
 
 <template>
@@ -39,7 +48,7 @@ const baseDelay = computed(() => {
         </div>
       </div>
       <div class="hidden md:block w-px h-16 mx-8 self-center" />
-      <div class="sm:h-32 flex flex-row-reverse sm:flex-col items-center sm:items-start justify-center" @click="$emit('showEggPreview')">
+      <div class="sm:h-32 flex flex-row-reverse sm:flex-col items-center sm:items-start justify-center" @click.native="$emit('showEggPreview')">
         <span class="text-4xl sm:text-5xl opacity-70 sm:opacity-90 tracking-wider sm:mt-2">{{ lunar.fullDate }}</span>
         <span class="text-4xl tracking-[0.2em] font-light opacity-70 sm:mt-2">{{ lunar.year }}({{ lunar.yearShengxiao }})年{{ lunar.month }}月</span>
       </div>
@@ -47,6 +56,11 @@ const baseDelay = computed(() => {
 
     <!-- 时钟显示 -->
     <div
+      class="clock-display tabular-nums cursor-pointer transition-all duration-500"
+      :class="{ 'with-seconds': clockConfig.showSeconds }"
+      :style="{ color: clockConfig.color, fontWeight: clockConfig.fontWeight, opacity: clockConfig.opacity }"
+    >
+    <div  
       class="clock-display tabular-nums cursor-pointer transition-all duration-500"
       :class="{ 'with-seconds': clockConfig.showSeconds }"
       :style="{ color: clockConfig.color, fontWeight: clockConfig.fontWeight, opacity: clockConfig.opacity }"
@@ -85,13 +99,14 @@ const baseDelay = computed(() => {
         :delay="(2 - baseDelay) * 100"
         class="opacity-95 brightness"
       />
-
+     </div>
+ 
       <template v-if="clockConfig.showSeconds">
         <div class="hidden md:block w-px mx-2 self-center" />
         <div class="flex flex-col mt-2">
           <!-- 将秒显示为1/3大小，两个数字排成1列，实现向上翻页效果。 -->
-          <span class="flex flex-col items-center md:items-start mt-5">
-            <div class="second-digit" style="font-size: 10%">&nbsp;</div>
+          <span class="flex flex-col items-center md:items-start mt-5" @click="trigTalkTimeNow">
+            <TimeAnnouncement class="second-digit" style="font-size: 10%" :doTimeAnnouce="announceTimeNow" />
             <Digit
               class="second-digit opacity-60" :value="s1" :show-seconds="clockConfig.showSeconds"
               :trigger="now.getTime()"
@@ -143,7 +158,7 @@ const baseDelay = computed(() => {
 }
 
 .clock-display.with-seconds {
-  font-size: min(20rem, 28vw);
+  font-size: min(22rem, 28vw);
 }
 
 .clock-separator {

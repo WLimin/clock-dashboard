@@ -26,6 +26,8 @@ export const useConfigStore = defineStore('config', () => {
     opacity: 0.9,
     /** 24小时制 */
     is24Hour: true,
+    /** 整点报时 */
+    enableTimeAnnouncement: true,
   })
 
   // 2. 清理旧版 key
