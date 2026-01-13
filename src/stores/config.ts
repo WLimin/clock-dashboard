@@ -3,15 +3,11 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useConfigStore = defineStore('config', () => {
-  // 1. 读取旧数据作为初始值
-  const oldHaConfig = localStorage.getItem('ha_config')
-  const haConfig = ref<HAConfig>(oldHaConfig
-    ? JSON.parse(oldHaConfig)
-    : {
-        url: '',
-        token: '',
-        entities: [],
-      })
+  const haConfig = ref<HAConfig>({
+    url: '',
+    token: '',
+    entities: [],
+  })
 
   const clockConfig = ref({
     /** 时钟颜色 */
@@ -30,14 +26,15 @@ export const useConfigStore = defineStore('config', () => {
     enableTimeAnnouncement: true,
   })
 
-  // 2. 清理旧版 key
-  if (oldHaConfig) {
-    localStorage.removeItem('ha_config')
-  }
+  const calendarConfig = ref({
+    /** 一周的开始：0 为周日，1 为周一 */
+    weekStartDay: 0,
+  })
 
   return {
     haConfig,
     clockConfig,
+    calendarConfig,
   }
 }, {
   persist: true,

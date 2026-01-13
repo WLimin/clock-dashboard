@@ -1,12 +1,19 @@
 <script setup lang="ts">
 import type { LunarInfo } from '../types'
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, Settings } from 'lucide-vue-next'
+import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import AlmanacModal from '../components/AlmanacModal.vue'
-import { getLunarDate } from '../utils/lunar'
+import CalendarSettingsModal from '../components/CalendarSettingsModal.vue'
+import { useConfigStore } from '../stores/config'
+import { getAlmanacDetails, getLunarDate } from '../utils/lunar'
+
+const configStore = useConfigStore()
+const { calendarConfig } = storeToRefs(configStore)
 
 const currentMonthDate = ref(new Date())
 const today = ref(new Date())
+const showSettings = ref(false)
 
 const selectedDay = ref<{
   date: Date
@@ -23,15 +30,24 @@ const isCurrentMonth = computed(() => {
 const calendarDays = computed(() => {
   const y = year.value
   const m = month.value
-  const firstDay = new Date(y, m, 1).getDay()
+  const weekStartDay = calendarConfig.value.weekStartDay // 0: Sunday, 1: Monday
+
+  // 获取本月第一天是周几 (0-6)
+  const firstDayOfMonth = new Date(y, m, 1).getDay()
+
+  // 计算需要补齐的上个月天数
+  // 如果周一平衡，且第一天是周日(0)，则需要补 6 天
+  // 如果周日平衡，且第一天是周日(0)，则需要补 0 天
+  let paddingDays = firstDayOfMonth - weekStartDay
+  if (paddingDays < 0) paddingDays += 7
+
   const daysInMonth = new Date(y, m + 1, 0).getDate()
-  const prevMonthDays = new Date(y, m, 0).getDate()
 
   const days = []
 
   // Prev month
-  for (let i = firstDay - 1; i >= 0; i--) {
-    const d = new Date(y, m - 1, prevMonthDays - i)
+  for (let i = paddingDays - 1; i >= 0; i--) {
+    const d = new Date(y, m, 0 - i) // 这样写比较稳妥，new Date(y, m, 0) 是上月最后一天
     days.push({ date: d, isOtherMonth: true, lunar: getLunarDate(d) })
   }
 
@@ -56,10 +72,28 @@ const calendarDays = computed(() => {
   return days
 })
 
+const weekHeaders = computed(() => {
+  const headers = ['日', '一', '二', '三', '四', '五', '六']
+  if (calendarConfig.value.weekStartDay === 1) {
+    return ['一', '二', '三', '四', '五', '六', '日']
+  }
+  return headers
+})
+
 function changeMonth(delta: number) {
   const d = new Date(currentMonthDate.value)
   d.setMonth(d.getMonth() + delta)
   currentMonthDate.value = d
+}
+
+function handleDayClick(day: any) {
+  selectedDay.value = {
+    ...day,
+    lunar: {
+      ...day.lunar,
+      ...getAlmanacDetails(day.date),
+    },
+  }
 }
 
 function goToToday() {
@@ -80,7 +114,7 @@ defineExpose({ refreshToday })
 
 <template>
   <div class="full-screen-calendar text-white">
-    <div class="flex items-center justify-between w-full mb-8 px-4 md:px-12">
+    <div class="flex items-center justify-between w-full mb-8 px-4">
       <div class="text-left">
         <h2 class="text-4xl md:text-5xl font-bold tracking-widest">
           {{ year }}年{{ month + 1 }}月
@@ -99,12 +133,18 @@ defineExpose({ refreshToday })
         <button class="p-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-full transition-all duration-300" @click="changeMonth(1)">
           <ChevronRight class="w-6 h-6 " />
         </button>
+        <button
+          class="p-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-full transition-all duration-300 ml-2"
+          @click="showSettings = true"
+        >
+          <Settings class="w-6 h-6" />
+        </button>
       </div>
     </div>
 
     <div class="flex-1 flex flex-col w-full">
       <div class="grid grid-cols-7 mb-2">
-        <div v-for="d in ['日', '一', '二', '三', '四', '五', '六']" :key="d" class="calendar-header-day text-xl font-bold">
+        <div v-for="d in weekHeaders" :key="d" class="calendar-header-day text-xl font-bold">
           {{ d }}
         </div>
       </div>
@@ -114,7 +154,7 @@ defineExpose({ refreshToday })
           :key="index"
           class="calendar-day cursor-pointer hover:bg-white/10 active:scale-95 transition-all duration-200"
           :class="{ 'other-month': day.isOtherMonth, 'today': day.isToday }"
-          @click="selectedDay = day"
+          @click="handleDayClick(day)"
         >
           <div class="day-number-wrapper flex flex-col items-center justify-center">
             <span class="text-2xl md:text-3xl font-bold">{{ day.date.getDate() }}</span>
@@ -137,13 +177,22 @@ defineExpose({ refreshToday })
     </div>
   </div>
 
-  <AlmanacModal
-    v-if="selectedDay"
-    :show="!!selectedDay"
-    :date="selectedDay.date"
-    :lunar="selectedDay.lunar"
-    @close="selectedDay = null"
-  />
+  <Teleport to="body">
+    <AlmanacModal
+      v-if="selectedDay"
+      :show="!!selectedDay"
+      :date="selectedDay.date"
+      :lunar="selectedDay.lunar"
+      @close="selectedDay = null"
+    />
+  </Teleport>
+
+  <Teleport to="body">
+    <CalendarSettingsModal
+      :show="showSettings"
+      @close="showSettings = false"
+    />
+  </Teleport>
 </template>
 
 <style scoped>

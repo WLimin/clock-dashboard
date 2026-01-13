@@ -15,15 +15,11 @@
 
 🌟 如果本项目对你有帮助，不妨点点Star，或者[请我喝杯咖啡☕️](#%EF%B8%8F-请我喝杯咖啡)
 
-> ⚠️ 目前只在iOS 12.5测试过，其他更低系统还未适配。
+> ⚠️ 此项目用到 `Vue 3.x` 框架，这意味着最高系统为 iOS 9.3.6 的 iPad mini 1 将无法支持，[只支持原生支持 ES2016 的浏览器](https://caniuse.com/es2016)。
 >
 > 💡 **隐私说明：**
 > 本项目为纯前端项目，所有接口均为直连，不存在隐私泄露风险。
 > 直接访问在线地址也可以安全使用 Home Assistant，无需私有部署。
->
-> 如果你的HA无法支持HTTPS，可以使用这个地址：[http://clock.teojs.cn](http://clock.teojs.cn)
->
-> 第三方接口以及 HA 接口都是 HTTPS 请求，自部署需要通过 HTTPS 访问。
 
 ---
 
@@ -31,17 +27,9 @@
 
 ![时钟页面](./public/screenshots/4.gif)
 
-### 时钟页面
-
-![时钟页面](./public/screenshots/1.png)
-
-### 智能家居控制
-
-![智能控制](./public/screenshots/0.png)
-
-### 全屏日历
-
-![日历视图](./public/screenshots/2.png)
+|                时钟页面                 |                智能控制                 |                全屏日历                 |
+| :-------------------------------------: | :-------------------------------------: | :-------------------------------------: |
+| ![时钟页面](./public/screenshots/1.png) | ![智能控制](./public/screenshots/0.png) | ![全屏日历](./public/screenshots/2.png) |
 
 ---
 
@@ -190,6 +178,8 @@ docker image prune -f
 ## ⚙️ Home Assistant 配置
 
 在应用中点击右上角设置图标，可以配置您的 Home Assistant 信息。
+
+> 💡 HA地址需要HTTPS支持，如果不支持，建议自己本地部署，并且仅用HTTP访问。
 
 ### 配置步骤
 
