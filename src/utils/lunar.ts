@@ -28,13 +28,8 @@ export function getLunarDate(date: Date): LunarInfo {
     const holiday = HolidayUtil.getHoliday(solar.getYear(), solar.getMonth(), solar.getDay())
     const holidayLabel = holiday ? (holiday.isWork() ? '班' : '休') : undefined
 
-    let fullDate = festival ? `${lunarDay}·${festival}` : lunarDay
-    if (holidayLabel) {
-      fullDate += `·${holidayLabel}`
-    }
-
     return {
-      fullDate,
+      fullDate: festival ? `${lunarDay}·${festival}` : lunarDay,
       date: festival || lunarDay,
       year: yearGanzhi,
       month,
@@ -45,6 +40,34 @@ export function getLunarDate(date: Date): LunarInfo {
       isFestival: !!festival,
       festival,
       holiday: holidayLabel,
+    }
+  }
+  catch (e) {
+    console.error('Lunar date error (lunar-typescript):', e)
+    return {
+      fullDate: '加载失败',
+      date: '加载失败',
+      year: '--年',
+      month: '加载失败',
+      yearShengxiao: '--',
+      monthGanzhi: '--',
+      dayInChinese: '--',
+      dayGanzhi: '--',
+      isFestival: false,
+    }
+  }
+}
+
+/**
+ * 获取完整的黄历详细信息（宜忌、冲煞、时辰吉凶等）
+ * 该操作较耗时，应仅在需要显示详情时调用
+ */
+export function getAlmanacDetails(date: Date): Partial<LunarInfo> {
+  try {
+    const solar = Solar.fromDate(date)
+    const lunar = solar.getLunar()
+
+    return {
       yi: lunar.getDayYi(),
       ji: lunar.getDayJi(),
       chong: lunar.getDayChongDesc(),
@@ -62,17 +85,7 @@ export function getLunarDate(date: Date): LunarInfo {
     }
   }
   catch (e) {
-    console.error('Lunar date error (lunar-typescript):', e)
-    return {
-      fullDate: '加载失败',
-      date: '加载失败',
-      year: '--年',
-      month: '加载失败',
-      yearShengxiao: '--',
-      monthGanzhi: '--',
-      dayInChinese: '--',
-      dayGanzhi: '--',
-      isFestival: false,
-    }
+    console.error('Almanac details error:', e)
+    return {}
   }
 }
