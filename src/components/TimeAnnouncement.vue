@@ -54,8 +54,8 @@ let inGenTts: boolean = false;
 
 const fetchGreetingText = async (time: string, isNow: boolean): Promise<string> => {
   inGenText = true;
-  const prompt = `生成约50字的整点报时用的心情祝福场景文本，保留当前小时。当前时间为${time}`
-  const promptNow = `当前时间为${time}。报时，并生成约50字，和当前时间相关的心情场景文本。`
+  const prompt = '生成约50字，整点报时场景用，心灵鸡汤类文本，保留当前小时。'+`当前时间:${time}。`
+  const promptNow = '生成约50字，语音报时场景用，和当前时间相关，能反映我心情或警言格句的文本。'+`当前时间:${time}。`
   let inputStr = isNow ? promptNow : prompt;
   try {
     const response = await fetch('http://172.18.0.160:11434/v1/responses', {
