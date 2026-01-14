@@ -59,11 +59,6 @@ export interface HAServiceCallParams {
   [key: string]: any
 }
 
-export interface Coordinates {
-  latitude: number
-  longitude: number
-}
-
 //Ollama服务API响应
 export interface OllamaResponse {
   id: string;
@@ -87,3 +82,19 @@ export interface OllamaResponse {
     total_tokens: number;
   };
 }
+
+export interface Coordinates {
+  latitude: number
+  longitude: number
+}
+
+export interface DailyWeatherApiResponse {
+  daily: {
+    time: string[]
+    weather_code: number[]
+    temperature_2m_max: number[]
+    temperature_2m_min: number[]
+    precipitation_probability_max: number[]
+  }
+}
+

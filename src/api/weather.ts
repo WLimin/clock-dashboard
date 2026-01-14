@@ -1,4 +1,4 @@
-import type { AirQualityApiResponse, WeatherApiResponse } from './types'
+import type { AirQualityApiResponse, DailyWeatherApiResponse, WeatherApiResponse } from './types'
 
 export async function fetchWeatherData(lat: number, lon: number): Promise<WeatherApiResponse> {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,rain,wind_speed_10m,is_day,apparent_temperature,showers,relative_humidity_2m,precipitation,weather_code&hourly=precipitation_probability,uv_index,temperature_2m&timezone=auto&forecast_days=1`
@@ -12,6 +12,18 @@ export async function fetchWeatherData(lat: number, lon: number): Promise<Weathe
   const currentHour = new Date().getHours()
   data.current_hour_index = currentHour
 
+  return data
+}
+
+export async function fetchDailyWeatherData(lat: number, lon: number): Promise<DailyWeatherApiResponse> {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=6`
+
+  const response = await fetch(url)
+  if (!response.ok) {
+    throw new Error(`Daily Weather API error: ${response.statusText}`)
+  }
+
+  const data = await response.json() as DailyWeatherApiResponse
   return data
 }
 

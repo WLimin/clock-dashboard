@@ -4,16 +4,19 @@ import { ChevronLeft, ChevronRight, Settings } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import AlmanacModal from '../components/AlmanacModal.vue'
-import CalendarSettingsModal from '../components/CalendarSettingsModal.vue'
 import { useConfigStore } from '../stores/config'
 import { getAlmanacDetails, getLunarDate } from '../utils/lunar'
 
 const configStore = useConfigStore()
-const { calendarConfig } = storeToRefs(configStore)
+const { calendarConfig, showDrawer, activeTab } = storeToRefs(configStore)
 
 const currentMonthDate = ref(new Date())
 const today = ref(new Date())
-const showSettings = ref(false)
+
+function openSettings() {
+  activeTab.value = 'calendar'
+  showDrawer.value = true
+}
 
 const selectedDay = ref<{
   date: Date
@@ -135,7 +138,7 @@ defineExpose({ refreshToday })
         </button>
         <button
           class="p-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-full transition-all duration-300 ml-2"
-          @click="showSettings = true"
+          @click="openSettings"
         >
           <Settings class="w-6 h-6" />
         </button>
@@ -164,7 +167,7 @@ defineExpose({ refreshToday })
               >
                 {{ day.lunar.date }}
               </span>
-              <template v-if="day.lunar.holiday">
+              <template v-if="calendarConfig.showHolidays && day.lunar.holiday">
                 <span class="opacity-60"> · </span>
                 <span :class="day.lunar.holiday === '休' ? 'text-red-400' : 'text-orange-300'">
                   {{ day.lunar.holiday }}
@@ -184,13 +187,6 @@ defineExpose({ refreshToday })
       :date="selectedDay.date"
       :lunar="selectedDay.lunar"
       @close="selectedDay = null"
-    />
-  </Teleport>
-
-  <Teleport to="body">
-    <CalendarSettingsModal
-      :show="showSettings"
-      @close="showSettings = false"
     />
   </Teleport>
 </template>
