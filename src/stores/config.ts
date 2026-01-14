@@ -1,4 +1,4 @@
-import type { HAConfig } from '../types'
+import type { HAConfig, GreetingConfig, TTSConfig } from '../types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
@@ -31,10 +31,26 @@ export const useConfigStore = defineStore('config', () => {
     weekStartDay: 0,
   })
 
+  const greetingConfig = ref<GreetingConfig>({
+    promptHours: '生成约50字，整点报时场景用，心灵鸡汤类文本，保留当前小时。',
+    promptNow: '生成约50字，语音报时场景用，和当前时间相关，能反映我心情或警言格句的文本。',
+    model: 'qwen2.5:latest',
+    apiUrl: 'http://172.18.0.160:11434/v1/responses',
+  })
+
+  const ttsConfig = ref<TTSConfig>({
+    apiUrl: 'http://172.18.0.180:8000/v1/audio/speech',
+    voice: '中文女',
+    response_format: 'wav',
+    speed: 1.0,
+  })
+
   return {
     haConfig,
     clockConfig,
     calendarConfig,
+    greetingConfig,
+    ttsConfig,
   }
 }, {
   persist: true,

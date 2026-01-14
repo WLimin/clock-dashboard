@@ -63,3 +63,27 @@ export interface Coordinates {
   latitude: number
   longitude: number
 }
+
+//Ollama服务API响应
+export interface OllamaResponse {
+  id: string;
+  object: string;
+  created_at: number;
+  status: string;
+  model: string;
+  output: {
+    id: string;
+    type: string;
+    status: string;
+    role: string;
+    content: {
+      type: string;
+      text: string;
+    }[];
+  }[];
+  usage: {
+    input_tokens: number;
+    output_tokens: number;
+    total_tokens: number;
+  };
+}
