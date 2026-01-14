@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { Calendar, Clock, CloudSun, Github, Home, Save, X } from 'lucide-vue-next'
+import { Calendar, Clock, CloudSun, Github, Home, Save, X, Speech } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 import { ref, watch } from 'vue'
 import packageJson from '../../package.json'
 import { useConfigStore } from '../stores/config'
 import CalendarSettings from './settings/CalendarSettings.vue'
 import ClockSettings from './settings/ClockSettings.vue'
+import TtsAndLlmSettings from './settings/TtsAndLlmSettings.vue'
 import SmartHomeSettings from './settings/SmartHomeSettings.vue'
 import WeatherSettings from './settings/WeatherSettings.vue'
 
@@ -16,12 +17,14 @@ const { showDrawer, activeTab } = storeToRefs(configStore)
 
 const tabs = [
   { id: 'clock', name: '时钟', icon: Clock },
+  { id: 'ttsllm', name: '语音', icon: Speech },
   { id: 'weather', name: '天气', icon: CloudSun },
   { id: 'calendar', name: '日历', icon: Calendar },
   { id: 'smart', name: 'HA', icon: Home },
 ] as const
 
 const clockSettingsRef = ref<InstanceType<typeof ClockSettings> | null>(null)
+const ttsAndLlmSettingsRef = ref<InstanceType<typeof TtsAndLlmSettings> | null>(null)
 const weatherSettingsRef = ref<InstanceType<typeof WeatherSettings> | null>(null)
 const calendarSettingsRef = ref<InstanceType<typeof CalendarSettings> | null>(null)
 const smartHomeSettingsRef = ref<InstanceType<typeof SmartHomeSettings> | null>(null)
@@ -29,6 +32,7 @@ const smartHomeSettingsRef = ref<InstanceType<typeof SmartHomeSettings> | null>(
 watch(showDrawer, (isShowing) => {
   if (isShowing) {
     clockSettingsRef.value?.reset()
+    ttsAndLlmSettingsRef.value?.reset()
     weatherSettingsRef.value?.reset()
     calendarSettingsRef.value?.reset()
     smartHomeSettingsRef.value?.reset()
@@ -37,6 +41,7 @@ watch(showDrawer, (isShowing) => {
 
 function saveAll() {
   clockSettingsRef.value?.save()
+  ttsAndLlmSettingsRef.value?.save()
   weatherSettingsRef.value?.save()
   calendarSettingsRef.value?.save()
   smartHomeSettingsRef.value?.save()
@@ -118,6 +123,7 @@ function closeDrawer() {
             <!-- Scrollable Area -->
             <div class="flex-1 overflow-y-auto p-6">
               <ClockSettings v-if="activeTab === 'clock'" ref="clockSettingsRef" />
+              <TtsAndLlmSettings v-if="activeTab === 'ttsllm'" ref="ttsAndLlmSettingsRef" />
               <WeatherSettings v-if="activeTab === 'weather'" ref="weatherSettingsRef" />
               <CalendarSettings v-if="activeTab === 'calendar'" ref="calendarSettingsRef" />
               <SmartHomeSettings v-if="activeTab === 'smart'" ref="smartHomeSettingsRef" />

@@ -9,7 +9,7 @@ import { genGreetingText } from '../api/greetingtext'
 import { genTts } from '../api/generatetts'
 
 const configStore = useConfigStore()
-const { clockConfig, greetingConfig, ttsConfig } = storeToRefs(configStore)
+const { enableTimeAnnouncement, greetingConfig, ttsConfig } = storeToRefs(configStore)
 
 const props = defineProps<{
   doTimeAnnouce: boolean
@@ -85,7 +85,7 @@ onMounted(() => {
     const sNow = t.getSeconds()
 
     // 是自动报时时段  
-    const isTimeAnnounce = ((clockConfig.value.enableTimeAnnouncement) && (8 <= hNow && hNow < 19))
+    const isTimeAnnounce = ((enableTimeAnnouncement) && (8 <= hNow && hNow < 19))
     //提前4分钟生成整点报时内容(只用CPU生成文本大约2分钟，合成语音1分钟)
     const isTimeGenAnnounce = (mNow === 56 && sNow === 0)
     //整点报时

@@ -4,7 +4,7 @@ import { ref } from 'vue'
 
 export const useConfigStore = defineStore('config', () => {
   const showDrawer = ref(false)
-  const activeTab = ref<'clock' | 'weather' | 'calendar' | 'smart'>('clock')
+  const activeTab = ref<'clock' | 'ttsllm' | 'weather' | 'calendar' | 'smart'>('clock')
 
   const haConfig = ref<HAConfig>({
     url: '',
@@ -25,8 +25,6 @@ export const useConfigStore = defineStore('config', () => {
     opacity: 0.9,
     /** 24小时制 */
     is24Hour: true,
-    /** 整点报时 */
-    enableTimeAnnouncement: true,
   })
 
   const calendarConfig = ref({
@@ -35,6 +33,8 @@ export const useConfigStore = defineStore('config', () => {
     /** 显示法定节假日 */
     showHolidays: true,
   })
+
+  const enableTimeAnnouncement = ref(true)      /** 整点报时 */
 
   const greetingConfig = ref<GreetingConfig>({
     promptHours: '生成约50字，整点报时场景用，心灵鸡汤类文本，保留当前小时。',
@@ -54,6 +54,7 @@ export const useConfigStore = defineStore('config', () => {
     haConfig,
     clockConfig,
     calendarConfig,
+    enableTimeAnnouncement,
     greetingConfig,
     ttsConfig,
     showDrawer,
