@@ -106,7 +106,7 @@ const trigTalkTimeNow = () => {
         <div class="flex flex-col mt-2">
           <!-- 将秒显示为1/3大小，两个数字排成1列，实现向上翻页效果。 -->
           <span class="flex flex-col items-center md:items-start mt-5" @click="trigTalkTimeNow">
-            <TimeAnnouncement style="font-size: 14%" :doTimeAnnouce="announceTimeNow" />
+            <TimeAnnouncement style="font-size: 11%" :doTimeAnnouce="announceTimeNow" />
             <Digit
               class="second-digit opacity-60" :value="s1" :show-seconds="clockConfig.showSeconds"
               :trigger="now.getTime()"
