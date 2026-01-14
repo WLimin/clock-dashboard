@@ -3,17 +3,22 @@ import { AirVent, AlertTriangle, Blinds, Droplets, Fan, Lightbulb, Loader2, Powe
 import { storeToRefs } from 'pinia'
 import { computed, onUnmounted, ref, watch } from 'vue'
 import { haSocket } from '../api'
-import SmartSettingsModal from '../components/SmartSettingsModal.vue'
 import { useConfigStore } from '../stores/config'
+import { useHAStore } from '../stores/ha'
 
 const configStore = useConfigStore()
-const { haConfig } = storeToRefs(configStore)
+const haStore = useHAStore()
+const { haConfig, showDrawer, activeTab } = storeToRefs(configStore)
+const { entitiesStates } = storeToRefs(haStore)
 
 const isConnecting = ref(false)
 
-const entitiesStates = ref<Record<string, any>>({})
 const loadingStates = ref<Record<string, boolean>>({})
-const showSettings = ref(false)
+
+function openSettings() {
+  activeTab.value = 'smart'
+  showDrawer.value = true
+}
 
 const connectErrorText = ref('')
 
@@ -73,7 +78,7 @@ async function initConnection() {
     connectErrorText.value = ''
     haSocket.subscribeToEntities((entities) => {
       isConnecting.value = false
-      entitiesStates.value = entities
+      haStore.setEntitiesStates(entities)
     })
   }
   catch (e) {
@@ -148,7 +153,7 @@ watch([() => haConfig.value.url, () => haConfig.value.token], () => {
           <AlertTriangle class="w-5 h-5 text-red-400" />
           <span class="text-red-400 text-sm">{{ connectErrorText }}</span>
         </div>
-        <button class="p-3 bg-white/10 hover:bg-white/20 border border-white/10 rounded-full transition-all" @click="showSettings = true">
+        <button class="p-3 bg-white/10 hover:bg-white/20 border border-white/10 rounded-full transition-all" @click="openSettings">
           <Settings class="w-5 h-5" />
         </button>
       </div>
@@ -204,15 +209,6 @@ watch([() => haConfig.value.url, () => haConfig.value.token], () => {
     <div v-else class="col-span-full text-center py-20 opacity-50">
       <p>请点击右上角设置 Home Assistant 地址和令牌</p>
     </div>
-
-    <!-- Smart Home Settings Modal -->
-    <Teleport to="body">
-      <SmartSettingsModal
-        :show="showSettings"
-        :entities-states="entitiesStates"
-        @close="showSettings = false"
-      />
-    </Teleport>
   </div>
 </template>
 

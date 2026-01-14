@@ -5,33 +5,12 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useConfigStore } from '../stores/config'
+import { genGreetingText } from '../api/greetingtext'
+import { genTts } from '../api/generatetts'
 
 const configStore = useConfigStore()
-const { clockConfig } = storeToRefs(configStore)
+const { enableTimeAnnouncement, greetingConfig, ttsConfig } = storeToRefs(configStore)
 
-//本地运行的Ollama服务
-interface OllamaResponse {
-  id: string;
-  object: string;
-  created_at: number;
-  status: string;
-  model: string;
-  output: {
-    id: string;
-    type: string;
-    status: string;
-    role: string;
-    content: {
-      type: string;
-      text: string;
-    }[];
-  }[];
-  usage: {
-    input_tokens: number;
-    output_tokens: number;
-    total_tokens: number;
-  };
-}
 const props = defineProps<{
   doTimeAnnouce: boolean
 }>()
@@ -54,65 +33,16 @@ let inGenTts: boolean = false;
 
 const fetchGreetingText = async (time: string, isNow: boolean): Promise<string> => {
   inGenText = true;
-  const prompt = '生成约50字，整点报时场景用，心灵鸡汤类文本，保留当前小时。'+`当前时间:${time}。`
-  const promptNow = '生成约50字，语音报时场景用，和当前时间相关，能反映我心情或警言格句的文本。'+`当前时间:${time}。`
-  let inputStr = isNow ? promptNow : prompt;
-  try {
-    const response = await fetch('http://172.18.0.160:11434/v1/responses', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'qwen2.5:latest',
-        input: inputStr
-      }),
-    });
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    const data = await response.json() as OllamaResponse;
-    const text = data.output[0].content[0].text;
-    console.log("Text", text)
-    inGenText = false;
-    return text;
-
-  } catch (error) {
-    console.error('Error fetching greeting text:', error);
-    inGenText = false;
-    return `当前时间为${time}`;
-  }
+  const greetingText = await genGreetingText(time, isNow, greetingConfig.value);
+  inGenText = false;
+  return greetingText;
 }
 
 const generateTTS = async (text: string): Promise<Blob> => {
-  console.log("GenerateTts")
   inGenTts = true;
-  try {
-    const response = await fetch('http://172.18.0.180:8000/v1/audio/speech', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        input: text,
-        voice: '中文女',
-        response_format: 'wav',
-        speed: 1.0
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    const blob = await response.blob();
-    console.log("GenerateTts done!")
+    const blob = await genTts(text, ttsConfig.value);
     inGenTts = false;
     return blob;
-  } catch (error) {
-    console.error('Error generating TTS:', error);
-    inGenTts = false;
-    return new Blob;
-  }
 }
 
 const playAudio = async (audioBlob: Blob): Promise<void> => {
@@ -155,7 +85,7 @@ onMounted(() => {
     const sNow = t.getSeconds()
 
     // 是自动报时时段  
-    const isTimeAnnounce = ((clockConfig.value.enableTimeAnnouncement) && (8 <= hNow && hNow < 19))
+    const isTimeAnnounce = ((enableTimeAnnouncement) && (8 <= hNow && hNow < 19))
     //提前4分钟生成整点报时内容(只用CPU生成文本大约2分钟，合成语音1分钟)
     const isTimeGenAnnounce = (mNow === 56 && sNow === 0)
     //整点报时

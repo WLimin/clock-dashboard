@@ -106,6 +106,26 @@ export const useWeatherStore = defineStore('weather', () => {
     }
   }
 
+  async function getCurrentCoords(): Promise<{ lat: number, lon: number }> {
+    if (locationMode.value === 'coords') {
+      return { lat: customLat.value, lon: customLon.value }
+    }
+
+    if (locationMode.value === 'city') {
+      const results = await searchCities(customCity.value)
+      if (results.length > 0) {
+        return { lat: results[0].latitude, lon: results[0].longitude }
+      }
+      return { lat: 39.9, lon: 116.4 }
+    }
+
+    if (cachedCoords.value) {
+      return { lat: cachedCoords.value.lat, lon: cachedCoords.value.lon }
+    }
+
+    return { lat: 39.9, lon: 116.4 }
+  }
+
   async function reverseGeocode(lat: number, lon: number) {
     try {
       const data = await reverseGeocodeApi(lat, lon)
@@ -211,6 +231,7 @@ export const useWeatherStore = defineStore('weather', () => {
     // Actions
     updateWeather,
     searchCities,
+    getCurrentCoords,
   }
 }, {
   persist: {

@@ -3,12 +3,16 @@ import { useIdle, useMagicKeys } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, ref, watch, watchEffect } from 'vue'
 import NewYearEgg from './components/NewYearEgg.vue'
+import SettingsDrawer from './components/SettingsDrawer.vue'
 import WeatherEffects from './components/WeatherEffects.vue'
-
+import { useConfigStore } from './stores/config'
 import { useWeatherStore } from './stores/weather'
 import CalendarView from './views/CalendarView.vue'
 import ClockWeatherView from './views/ClockWeatherView.vue'
 import SmartHomeView from './views/SmartHomeView.vue'
+
+const configStore = useConfigStore()
+const { showDrawer } = storeToRefs(configStore)
 
 const currentPage = ref(1)
 const calendarRef = ref<any>(null)
@@ -108,15 +112,19 @@ function handleGlobalClick(e: MouseEvent) {
   }
 }
 
-const { idle } = useIdle(30 * 1000) // 30 秒不操作自动返回首页
+/** 30 秒不操作自动返回首页 */
+const { idle } = useIdle(30 * 1000)
 watch(idle, (newIdle) => {
   if (newIdle) {
     goToPage(1)
   }
 })
 
+/** 键盘左右键切换页面 */
 const { left, right } = useMagicKeys()
 watchEffect(() => {
+  if (showDrawer.value) return
+
   if (left.value && currentPage.value > 0) {
     goToPage(currentPage.value - 1)
   }
@@ -153,6 +161,8 @@ watchEffect(() => {
         <CalendarView v-if="currentPage === 2" ref="calendarRef" />
       </div>
     </div>
+
+    <SettingsDrawer />
 
     <NewYearEgg :isPreviewMode="isPreviewMode" />
 

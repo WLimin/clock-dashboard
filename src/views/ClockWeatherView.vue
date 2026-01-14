@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { useIdle } from '@vueuse/core'
+import { Settings } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
-import { computed, ref } from 'vue'
-import ClockSettingsModal from '../components/ClockSettingsModal.vue'
+import { computed, ref, watch } from 'vue'
 import Digit from '../components/Digit.vue'
 import Weather from '../components/Weather.vue'
 import { useTime } from '../hooks/useTime'
@@ -9,14 +10,22 @@ import { useConfigStore } from '../stores/config'
 import TimeAnnouncement from '../components/TimeAnnouncement.vue'
 
 const configStore = useConfigStore()
-const { clockConfig } = storeToRefs(configStore)
+const { clockConfig, showDrawer, activeTab } = storeToRefs(configStore)
 
 const { h1, h2, m1, m2, s1, s2, lunar, now } = useTime({
   is24Hour: computed(() => clockConfig.value.is24Hour),
 })
 
-const showClockSettings = ref(false)
 const announceTimeNow = ref(false)
+
+function openSettings() {
+  activeTab.value = 'clock'
+  showDrawer.value = true
+}
+
+function toggleSeconds() {
+  clockConfig.value.showSeconds = !clockConfig.value.showSeconds
+}
 
 const baseDelay = computed(() => {
   return clockConfig.value.showSeconds ? 0 : -2
@@ -28,10 +37,28 @@ const trigTalkTimeNow = () => {
     announceTimeNow.value = false
   }, 5 * 1000); // 5秒后执行
 }
+
+/** 闲置时隐藏设置按钮 */
+const showSettingsButton = ref(true)
+const { idle } = useIdle(5 * 1000)
+watch(idle, (newIdle) => {
+  showSettingsButton.value = !newIdle
+})
 </script>
 
 <template>
-  <div class="glass-panel h-full flex flex-col items-center justify-evenly text-white w-full overflow-y-auto overflow-x-hidden">
+  <div
+    class="glass-panel relative h-full flex flex-col items-center justify-evenly text-white w-full overflow-y-auto overflow-x-hidden"
+    @click.stop="showSettingsButton = !showSettingsButton"
+  >
+    <!-- 设置按钮 -->
+    <button
+      :class="{ 'opacity-0': !showSettingsButton }"
+      class="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all hover:rotate-90 duration-300" @click="openSettings"
+    >
+      <Settings class="w-6 h-6 text-white" />
+    </button>
+
     <!-- 日期与农历 -->
     <div class="flex flex-col sm:flex-row items-center md:items-start gap-0 sm:gap-6 w-full justify-center">
       <div class="flex items-center gap-4">
@@ -49,7 +76,7 @@ const trigTalkTimeNow = () => {
       </div>
       <div class="hidden md:block w-px h-16 mx-8 self-center" />
       <div class="sm:h-32 flex flex-row-reverse sm:flex-col items-center sm:items-start justify-center" @click.native="$emit('showEggPreview')">
-        <span class="text-4xl sm:text-5xl opacity-70 sm:opacity-90 tracking-wider sm:mt-2">{{ lunar.fullDate }}</span>
+       <span class="text-4xl sm:text-5xl opacity-70 sm:opacity-90 tracking-wider sm:mt-2">{{ lunar.fullDate }}</span>
         <span class="text-4xl tracking-[0.2em] font-light opacity-70 sm:mt-2">{{ lunar.year }}({{ lunar.yearShengxiao }})年{{ lunar.month }}月</span>
       </div>
     </div>
@@ -64,7 +91,7 @@ const trigTalkTimeNow = () => {
       class="clock-display tabular-nums cursor-pointer transition-all duration-500"
       :class="{ 'with-seconds': clockConfig.showSeconds }"
       :style="{ color: clockConfig.color, fontWeight: clockConfig.fontWeight, opacity: clockConfig.opacity }"
-      @click="showClockSettings = true"
+      @click.stop.prevent="toggleSeconds"
     >
       <Digit
         v-if="clockConfig.is24Hour || h1 !== 0"
@@ -106,7 +133,7 @@ const trigTalkTimeNow = () => {
         <div class="flex flex-col mt-2">
           <!-- 将秒显示为1/3大小，两个数字排成1列，实现向上翻页效果。 -->
           <span class="flex flex-col items-center md:items-start mt-5" @click="trigTalkTimeNow">
-            <TimeAnnouncement style="font-size: 14%" :doTimeAnnouce="announceTimeNow" />
+            <TimeAnnouncement style="font-size: 11%" :doTimeAnnouce="announceTimeNow" />
             <Digit
               class="second-digit opacity-60" :value="s1" :show-seconds="clockConfig.showSeconds"
               :trigger="now.getTime()"
@@ -126,9 +153,6 @@ const trigTalkTimeNow = () => {
 
     <!-- 天气展示 -->
     <Weather />
-
-    <!-- 时钟设置弹窗 -->
-    <ClockSettingsModal :show="showClockSettings" @close="showClockSettings = false" />
   </div>
 </template>
 

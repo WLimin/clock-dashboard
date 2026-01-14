@@ -41,3 +41,17 @@ export interface LunarInfo {
     xs: string // 忌
   }[]
 }
+
+export interface GreetingConfig { //报时配置接口
+  promptHours: string;    //整点报时提示词
+  promptNow: string;      //当前时间提示词
+  model: string;          //使用的大语言模型名，例如：qwen2.5:latest
+  apiUrl: string;         //openai兼容的ollama api接口地址，例如：http://172.18.0.160:11434/v1/responses
+}
+
+export interface TTSConfig { //TTS 配置接口
+  apiUrl: string;           //openai兼容的 api接口地址，例如：http://172.18.0.180:8000/v1/audio/speech
+  voice: string;            //'中文女'
+  response_format: string;  //'wav'
+  speed: number;            //1.0
+}
