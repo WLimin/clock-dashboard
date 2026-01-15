@@ -55,3 +55,9 @@ export interface TTSConfig { //TTS 配置接口
   response_format: string;  //'wav'
   speed: number;            //1.0
 }
+
+export interface TimeAnnouncementConfig { //语音报时设置
+  enabled: boolean;         //是否允许整点报时
+  startHour: number;        //打开时间
+  stopHour: number;         //关闭时间
+}

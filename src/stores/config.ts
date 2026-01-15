@@ -1,4 +1,4 @@
-import type { HAConfig, GreetingConfig, TTSConfig } from '../types'
+import type { HAConfig, GreetingConfig, TTSConfig, TimeAnnouncementConfig } from '../types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
@@ -34,11 +34,16 @@ export const useConfigStore = defineStore('config', () => {
     showHolidays: true,
   })
 
-  const enableTimeAnnouncement = ref(true)      /** 整点报时 */
+  /** 整点报时 */
+  const timeAnnouncementConfig = ref<TimeAnnouncementConfig>({
+    enabled: true,           //是否允许整点报时
+    startHour: 7,            //打开时间
+    stopHour: 19,            //关闭时间
+  })
 
   const greetingConfig = ref<GreetingConfig>({
     promptHours: '生成约50字，整点报时场景用，心灵鸡汤类文本，保留当前小时。',
-    promptNow: '生成约50字，语音报时场景用，和当前时间相关，能反映我心情或警言格句的文本。',
+    promptNow: '报出时间。生成约50字，语音报时场景用，和当前时间相关，能反映我心情的诗词或警言格句的文本。',
     model: 'qwen2.5:latest',
     apiUrl: 'http://172.18.0.160:11434/v1/responses',
   })
@@ -54,7 +59,7 @@ export const useConfigStore = defineStore('config', () => {
     haConfig,
     clockConfig,
     calendarConfig,
-    enableTimeAnnouncement,
+    timeAnnouncementConfig,
     greetingConfig,
     ttsConfig,
     showDrawer,
