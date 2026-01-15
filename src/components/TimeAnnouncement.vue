@@ -69,7 +69,7 @@ const announceTime = async (time: string): Promise<void> => {
 
 const announceTimeNow = () => {
   const currentTime = new Date();
-  const timeStr = currentTime.toLocaleString();
+  const timeStr = `${currentTime.getFullYear()}年${currentTime.getMonth() + 1}月${currentTime.getDay()}日${currentTime.getHours()}时${currentTime.getMinutes()}分${currentTime.getSeconds()}秒`;
   console.log("announceTimeNow:", timeStr)
 
   setTimeout(async () => {
@@ -92,7 +92,7 @@ onMounted(() => {
     const isHourMatch = (mNow === 59 && sNow === 58)
     if (isTimeAnnounce) {
       if (isTimeGenAnnounce) {
-        const currentTime = `${hNow + 1}:00`;
+        const currentTime = `${hNow + 1}时`;
         setTimeout(() => {
           announceTime(currentTime);
         }, 2 * 1000); // 2秒后执行
