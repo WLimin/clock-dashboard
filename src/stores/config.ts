@@ -42,8 +42,8 @@ export const useConfigStore = defineStore('config', () => {
   })
 
   const greetingConfig = ref<GreetingConfig>({
-    promptHours: '生成约50字，整点报时场景用，心灵鸡汤类文本，保留当前小时。',
-    promptNow: '报出时间。生成约50字，语音报时场景用，和当前时间相关，能反映我心情的诗词或警言格句的文本。',
+    promptHours: '生成约50~100字，整点报时场景用，诗词或心灵鸡汤类文本，保留当前小时。',
+    promptNow: '报出时间。生成约50~100字，语音报时场景用，和当前时间相关，能反映我心情的诗词或警言格句的文本。',
     model: 'qwen2.5:latest',
     apiUrl: 'http://172.18.0.160:11434/v1/responses',
   })
