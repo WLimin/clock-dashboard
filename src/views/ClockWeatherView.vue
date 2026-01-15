@@ -86,69 +86,67 @@ watch(idle, (newIdle) => {
       class="clock-display tabular-nums cursor-pointer transition-all duration-500"
       :class="{ 'with-seconds': clockConfig.showSeconds }"
       :style="{ color: clockConfig.color, fontWeight: clockConfig.fontWeight, opacity: clockConfig.opacity }"
+      @click.stop.prevent="toggleSeconds"
     >
-      <div
-        class="clock-display tabular-nums cursor-pointer transition-all duration-500"
-        :class="{ 'with-seconds': clockConfig.showSeconds }"
-        :style="{ color: clockConfig.color, fontWeight: clockConfig.fontWeight, opacity: clockConfig.opacity }"
-        @click.stop.prevent="toggleSeconds"
-      >
-        <Digit
-          v-if="clockConfig.is24Hour || h1 !== 0"
-          :value="h1" :show-seconds="clockConfig.showSeconds" :enable-tilt="clockConfig.enableTilt"
-          :trigger="clockConfig.showSeconds ? now.getTime() : Math.floor(now.getTime() / 60000)"
-          :delay="(5 - baseDelay) * 100"
-          class="opacity-95"
-        />
-        <Digit
-          :value="h2" :show-seconds="clockConfig.showSeconds" :enable-tilt="clockConfig.enableTilt"
-          :trigger="clockConfig.showSeconds ? now.getTime() : Math.floor(now.getTime() / 60000)"
-          :delay="(4 - baseDelay) * 100"
-          class="opacity-95"
-          :class="[{
-            brightness: clockConfig.is24Hour || (!clockConfig.is24Hour && h1 !== 0),
-          }]"
-        />
-        <!-- 根据时间值来改变分割符号:显示颜色。 -->
-        <div class="clock-separator" :style="{ color: `rgb(${128 - (h1 * 10 + h2) * 5 + 10}, ${(m1 * 10 + s2) * 4 + 15}, ${(s1 * 10 + m2) * 4 + 15})` }">
-          :
-        </div>
-
-        <Digit
-          :value="m1" :show-seconds="clockConfig.showSeconds" :enable-tilt="clockConfig.enableTilt"
-          :trigger="clockConfig.showSeconds ? now.getTime() : Math.floor(now.getTime() / 60000)"
-          :delay="(3 - baseDelay) * 100"
-          class="opacity-95"
-        />
-        <Digit
-          :value="m2" :show-seconds="clockConfig.showSeconds" :enable-tilt="clockConfig.enableTilt"
-          :trigger="clockConfig.showSeconds ? now.getTime() : Math.floor(now.getTime() / 60000)"
-          :delay="(2 - baseDelay) * 100"
-          class="opacity-95 brightness"
-        />
+      <Digit
+        v-if="clockConfig.is24Hour || h1 !== 0"
+        :value="h1" :show-seconds="clockConfig.showSeconds" :enable-tilt="clockConfig.enableTilt"
+        :trigger="clockConfig.showSeconds ? now.getTime() : Math.floor(now.getTime() / 60000)"
+        :delay="(5 - baseDelay) * 100"
+        class="opacity-95"
+      />
+      <Digit
+        :value="h2" :show-seconds="clockConfig.showSeconds" :enable-tilt="clockConfig.enableTilt"
+        :trigger="clockConfig.showSeconds ? now.getTime() : Math.floor(now.getTime() / 60000)"
+        :delay="(4 - baseDelay) * 100"
+        class="opacity-95"
+        :class="[{
+          brightness: clockConfig.is24Hour || (!clockConfig.is24Hour && h1 !== 0),
+        }]"
+      />
+      <!-- 根据时间值来改变分割符号:显示颜色。 -->
+      <div class="clock-separator" :style="{ color: `rgb(${128 - (h1 * 10 + h2) * 5 + 10}, ${(m1 * 10 + s2) * 4 + 15}, ${(s1 * 10 + m2) * 4 + 15})` }">
+        :
       </div>
-  
+      <Digit
+        :value="m1" :show-seconds="clockConfig.showSeconds" :enable-tilt="clockConfig.enableTilt"
+        :trigger="clockConfig.showSeconds ? now.getTime() : Math.floor(now.getTime() / 60000)"
+        :delay="(3 - baseDelay) * 100"
+        class="opacity-95"
+      />
+      <Digit
+        :value="m2" :show-seconds="clockConfig.showSeconds" :enable-tilt="clockConfig.enableTilt"
+        :trigger="clockConfig.showSeconds ? now.getTime() : Math.floor(now.getTime() / 60000)"
+        :delay="(2 - baseDelay) * 100"
+        class="opacity-95 brightness"
+      />
+
       <template v-if="clockConfig.showSeconds" >
         <div class="hidden md:block w-px mx-2 self-center" />
-        <div class="flex flex-col mt-2" @click="trigTalkTimeNow" >
+        <div class="flex flex-col mt-2" >
           <!-- 将秒显示为1/3大小，两个数字排成1列，实现向上翻页效果。 -->
           <span class="flex flex-col items-center md:items-start mt-5" >
-            <TimeAnnouncement style="font-size: 11%" :doTimeAnnouce="announceTimeNow" />
+            <div class="second-digit opacity-60" style="font-size: 14%">&nbsp;</div>
             <Digit
               class="second-digit opacity-60" :value="s1" :show-seconds="clockConfig.showSeconds"
-              :trigger="now.getTime()"
-              :delay="100"
-              :enable-tilt="clockConfig.enableTilt"
+              :trigger="now.getTime()" 
+              :delay="100" :enable-tilt="clockConfig.enableTilt"
             />
             <Digit
               class="second-digit brightness opacity-60" :value="s2" :show-seconds="clockConfig.showSeconds"
-              :trigger="now.getTime()"
-              :delay="0"
-              :enable-tilt="clockConfig.enableTilt"
+              :trigger="now.getTime()" 
+              :delay="0" :enable-tilt="clockConfig.enableTilt"
             />
-            </span>
+          </span>
         </div>
       </template>
+
+      <div class="hidden md:block w-px mx-2 self-center" />
+      <span class="flex flex-col items-center md:items-start mt-5" @click.stop.prevent="trigTalkTimeNow">
+        <TimeAnnouncement style="font-size: 14%" :doTimeAnnouce="announceTimeNow" />
+        <div class="second-digit opacity-60" style="font-size: 12%">&nbsp;</div>
+        <div class="second-digit opacity-60" style="font-size: 12%">&nbsp;</div>
+      </span>
     </div>
 
     <!-- 天气展示 -->
