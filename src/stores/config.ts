@@ -45,11 +45,11 @@ export const useConfigStore = defineStore('config', () => {
     promptHours: '写出约50~100字，诗词或心灵鸡汤类文本。',
     promptNow: '写出约50~100字，和当前时间相关，能反映我心情的诗词或警言格句的文本。',
     model: 'qwen2.5:latest',
-    apiUrl: 'http://172.18.0.160:11434/v1/responses',
+    apiUrl: '/ollama/v1/responses',
   })
 
   const ttsConfig = ref<TTSConfig>({
-    apiUrl: 'http://172.18.0.180:8000/v1/audio/speech',
+    apiUrl: '/tts/v1/audio/speech',
     voice: '中文女',
     response_format: 'wav',
     speed: 1.0,

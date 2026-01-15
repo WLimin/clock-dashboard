@@ -58,6 +58,21 @@ export default defineConfig({
   server: {
     host: true,
     port: 3000,
+    proxy: {
+      '/ollama': {
+        target: 'https://172.18.0.1', // host nginx proxy
+      // target: 'http://172.18.0.160:11434',  rewrite: (path) => path.replace(/^\/ollama/, ''), //直接访问ollama容器，需要改写路径
+        changeOrigin: true,
+        secure: false, // 忽略 SSL 证书验证
+        timeout: 300000, //6min
+      },
+      '/tts': {
+        target: 'https://172.18.0.1', // host nginx proxy
+        changeOrigin: true,
+        secure: false,
+        timeout: 300000, //6min
+      }, 
+    },
   },
   build: {
     minify: 'terser',
