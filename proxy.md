@@ -70,6 +70,7 @@ set $ollama_ip "172.18.0.160";
     -e OLLAMA_LOG_LEVEL=VERBOSE \
     -e OLLAMA_CONTEXT_LENGTH=$((8*1024)) \
     -e DISABLE_TELEMETRY=YES \
+    -e OLLAMA_ORIGINS='*' \
   -v /etc/localtime:/etc/localtime:ro \
   -v /etc/timezone:/etc/timezone:ro \
   -v /usr/share/zoneinfo:/usr/share/zoneinfo:ro \
@@ -91,3 +92,27 @@ tts的 apiUrl为
 /tts/v1/audio/speech
 ```
 ## 点击农历、秒或图标试试看。
+
+在开发容器中，需要设置代理才能正常访问：
+vite.config.ts
+```code
+ server: {
+    host: true,
+    port: 3000,
+    proxy: {
+      '/ollama': {
+        target: 'https://172.18.0.1', // host nginx proxy
+      // target: 'http://172.18.0.160:11434',  rewrite: (path) => path.replace(/^\/ollama/, ''), //直接访问ollama容器，需要改写路径
+        changeOrigin: true,
+        secure: false, // 忽略 SSL 证书验证
+        timeout: 300000, //6min
+      },
+      '/tts': {
+        target: 'https://172.18.0.1', // host nginx proxy
+        changeOrigin: true,
+        secure: false,
+        timeout: 300000, //6min
+      }, 
+    },
+  },
+  ```
