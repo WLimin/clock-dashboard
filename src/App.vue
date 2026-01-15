@@ -22,7 +22,7 @@ const { weatherData, showRainEffect, showThunderEffect, showSnowEffect } = store
 
 const isPreviewMode = ref(false)
 
-function toggleIsPreviewMode() {
+const toggleIsPreviewMode = (): void => {
   isPreviewMode.value = true
   setTimeout(() => {
     isPreviewMode.value = false;
