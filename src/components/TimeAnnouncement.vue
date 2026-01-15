@@ -137,7 +137,7 @@ onUnmounted(() => {
 })
 </script>
 <template>
-  <div class="avatar" @click="announceTimeNow">
+  <div class="avatar" @click.native="announceTimeNow">
     &nbsp;{{ showAvatar }}
     <audio ref="audioPlayer"></audio>
   </div>
