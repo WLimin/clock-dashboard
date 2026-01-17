@@ -248,20 +248,20 @@ defineExpose({ save, reset })
       <h4 class="text-white/50 uppercase tracking-widest text-sm font-medium mb-4">
         指标图标说明
       </h4>
-      <div class="flex flex-wrap gap-4 bg-white/5 rounded-2xl p-4">
-        <div class="flex items-center gap-3 flex-1 whitespace-nowrap">
+      <div class="flex flex-wrap bg-white/5 rounded-2xl p-4">
+        <div class="flex items-center gap-3 flex-1 whitespace-nowrap m-2">
           <Droplets class="w-5 h-5 text-blue-500/60 flex-shrink-0" />
           <span class="text-sm text-white/80">相对湿度</span>
         </div>
-        <div class="flex items-center gap-3 flex-1 whitespace-nowrap">
+        <div class="flex items-center gap-3 flex-1 whitespace-nowrap m-2">
           <Leaf class="w-5 h-5 text-green-300/60 flex-shrink-0" />
           <span class="text-sm text-white/80">空气质量（美国 AQI）</span>
         </div>
-        <div class="flex items-center gap-3 flex-1 whitespace-nowrap">
+        <div class="flex items-center gap-3 flex-1 whitespace-nowrap m-2">
           <PersonStanding class="w-5 h-5 text-orange-500/60 flex-shrink-0" />
           <span class="text-sm text-white/80">体感温度</span>
         </div>
-        <div class="flex items-center gap-3 flex-1 whitespace-nowrap">
+        <div class="flex items-center gap-3 flex-1 whitespace-nowrap m-2">
           <Sun class="w-5 h-5 text-purple-500/60 flex-shrink-0" />
           <span class="text-sm text-white/80">紫外线指数</span>
         </div>
@@ -274,7 +274,9 @@ defineExpose({ save, reset })
         :disabled="weatherLoading"
         @click="handleManualRefresh"
       >
-        <RefreshCw class="w-4 h-4" :class="{ 'animate-spin': weatherLoading }" /> 立即刷新天气
+        <span class="flex items-center gap-2">
+          <RefreshCw class="w-4 h-4 mr-2" :class="{ 'animate-spin': weatherLoading }" /> 立即刷新天气
+        </span>
       </button>
     </div>
   </div>

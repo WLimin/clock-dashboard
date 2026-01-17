@@ -29,7 +29,7 @@ defineExpose({ save, reset })
       <div class="grid grid-cols-7 gap-4">
         <button
           v-for="color in presetColors" :key="color"
-          class="w-10 h-10 rounded-full border-2 transition-all hover:scale-110 active:scale-90"
+          class="w-10 h-10 rounded-full border-4 transition-all hover:scale-110 active:scale-90"
           :style="{ backgroundColor: color, borderColor: clockDraft.color === color ? 'white' : 'transparent' }"
           @click="clockDraft.color = color"
         />
