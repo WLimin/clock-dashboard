@@ -42,8 +42,8 @@ export const useConfigStore = defineStore('config', () => {
   })
 
   const greetingConfig = ref<GreetingConfig>({
-    promptHours: '首先口语念出当前时间，精确到整点。然后，念出约50字，和报时相关的诗词或警言，有出处，但无需解释含义。',
-    promptNow: '首先口语念出当前时间，精确到分钟。然后，念出约50字，和报时相关的诗词或警言，有出处，但无需解释含义。',
+    promptHours: '首先口语念出当前时间，精确到整点。然后，念出约50字，和当前时间相关场景的诗词或警言，有出处，但无需解释含义。',
+    promptNow: '首先口语念出当前时间，精确到分钟。然后，念出约50字，和当前时间相关场景的诗词或警言，有出处，但无需解释含义。',
     model: 'qwen2.5:latest',
     apiUrl: '/ollama/v1/responses',
   })
