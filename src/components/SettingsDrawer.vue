@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Calendar, Clock, CloudSun, Github, Home, Save, X } from 'lucide-vue-next'
+import { Calendar, Clock, CloudSun, Github, Home, Save, X, Speech } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 import { ref, watch } from 'vue'
 import packageJson from '../../package.json'
