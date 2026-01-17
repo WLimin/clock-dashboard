@@ -7,6 +7,7 @@ import SettingsDrawer from './components/SettingsDrawer.vue'
 import WeatherEffects from './components/WeatherEffects.vue'
 import { useConfigStore } from './stores/config'
 import { useWeatherStore } from './stores/weather'
+import { isIpadIOS15OrLower } from './utils/device'
 import CalendarView from './views/CalendarView.vue'
 import ClockWeatherView from './views/ClockWeatherView.vue'
 import SmartHomeView from './views/SmartHomeView.vue'
@@ -144,8 +145,10 @@ watchEffect(() => {
     @click.capture="handleGlobalClick"
   >
     <!-- Background Decoration -->
-    <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-900/10 rounded-full blur-3xl" />
-    <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-900/10 rounded-full blur-3xl" />
+    <template v-if="!isIpadIOS15OrLower()">
+      <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-900/10 rounded-full blur-3xl pointer-events-none" />
+      <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-900/10 rounded-full blur-3xl pointer-events-none" />
+    </template>
 
     <div
       class="main-slider flex h-full transition-transform duration-700 cubic-bezier"

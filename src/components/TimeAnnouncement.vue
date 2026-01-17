@@ -69,7 +69,8 @@ const announceTime = async (time: string): Promise<void> => {
 
 const announceTimeNow = () => {
   const currentTime = new Date();
-  const timeStr = `${currentTime.getFullYear()}年${currentTime.getMonth() + 1}月${currentTime.getDate()}日${currentTime.getHours()}时${currentTime.getMinutes()}分${currentTime.getSeconds()}秒`;
+  const weekdayStr = currentTime.toLocaleDateString('zh-CN', { weekday: 'long' })
+  const timeStr = `${currentTime.getFullYear()}年${currentTime.getMonth() + 1}月${currentTime.getDate()}日${weekdayStr}${currentTime.getHours()}时${currentTime.getMinutes()}分${currentTime.getSeconds()}秒`;
   console.log("announceTimeNow:", timeStr)
 
   setTimeout(async () => {

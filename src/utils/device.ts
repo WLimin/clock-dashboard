@@ -17,3 +17,11 @@ export function detectDevice(): DeviceType {
   if (isMobile) return DeviceType.MOBILE
   return DeviceType.DESKTOP
 }
+
+export function isIpadIOS15OrLower(): boolean {
+  const ua = navigator.userAgent
+  if (!/iPad/.test(ua)) return false
+  const match = ua.match(/OS (\d+)[._]/)
+  if (!match) return false
+  return Number(match[1]) <= 15
+}

@@ -55,13 +55,13 @@ onUnmounted(() => {
         <img :src="weatherInfo.icon" :alt="weatherInfo.text" class="w-full h-full object-contain" draggable="false">
       </div>
       <div>
-        <p id="weather-text" class="text-4xl font-semibold tracking-wide">
+        <div id="weather-text" class="text-4xl font-semibold tracking-wide">
           {{ weatherInfo.text }}
-        </p>
-        <p id="location-text" class="text-lg text-white/80 uppercase tracking-widest mt-2 whitespace-nowrap">
+        </div>
+        <div id="location-text" class="text-lg text-white/80 uppercase tracking-widest mt-2 whitespace-nowrap">
           {{ locationText }} ·
           降雨 <span class="text-blue-400 text-xl tabular-nums">{{ weatherData ? weatherData.hourly.precipitation_probability[weatherData.current_hour_index] : '--' }}%</span>
-        </p>
+        </div>
       </div>
     </div>
 

@@ -15,6 +15,13 @@ export interface WeatherApiResponse {
     uv_index: number[]
     temperature_2m: number[]
   }
+  daily: {
+    time: string[]
+    weather_code: number[]
+    temperature_2m_max: number[]
+    temperature_2m_min: number[]
+    precipitation_probability_max: number[]
+  }
   current_hour_index?: number
 }
 
@@ -87,14 +94,3 @@ export interface Coordinates {
   latitude: number
   longitude: number
 }
-
-export interface DailyWeatherApiResponse {
-  daily: {
-    time: string[]
-    weather_code: number[]
-    temperature_2m_max: number[]
-    temperature_2m_min: number[]
-    precipitation_probability_max: number[]
-  }
-}
-

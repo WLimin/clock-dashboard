@@ -2,7 +2,7 @@
 import type { HAConfig } from '../../types'
 import { ChevronDown, ChevronUp, Code, List, Minus, Plus, PlusCircle } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useConfigStore } from '../../stores/config'
 import { useHAStore } from '../../stores/ha'
 import TestHAConnection from './TestHAConnection.vue'
@@ -15,6 +15,19 @@ const { entitiesStates } = storeToRefs(haStore)
 const smartConfig = ref<HAConfig>(JSON.parse(JSON.stringify(haConfig.value)))
 const isJsonMode = ref(false)
 const jsonInput = ref('')
+const entityNameMap = ref<Record<string, string>>({})
+
+function refreshEntityNameMap() {
+  const nextMap: Record<string, string> = {}
+  const states = entitiesStates.value
+  if (states) {
+    Object.keys(states).forEach((entityId) => {
+      const name = states[entityId]?.attributes?.friendly_name
+      if (name) nextMap[entityId] = name
+    })
+  }
+  entityNameMap.value = nextMap
+}
 
 watch(isJsonMode, (newVal) => {
   if (newVal) {
@@ -83,9 +96,14 @@ function save() {
 
 function reset() {
   smartConfig.value = JSON.parse(JSON.stringify(haConfig.value))
+  refreshEntityNameMap()
 }
 
 defineExpose({ save, reset })
+
+onMounted(() => {
+  refreshEntityNameMap()
+})
 </script>
 
 <template>
@@ -137,7 +155,7 @@ defineExpose({ save, reset })
           </div>
           <div class="space-y-4">
             <div v-for="(entity, index) in smartConfig.entities" :key="entity.id || index" class="relative flex gap-2 items-stretch group">
-              <div class="flex flex-col justify-between opacity-60 group-hover:opacity-100 transition-opacity flex-shrink-0 border border-white/10 rounded-2xl px-1 py-1.5 bg-white/5">
+              <div class="flex flex-col justify-between opacity-60 flex-shrink-0 border border-white/10 rounded-2xl px-1 py-1.5 bg-white/5">
                 <button class="bg-white/10 rounded-full p-1 text-white/80 hover:text-white hover:bg-white/20 transition-all" @click="moveEntity(index, -1)">
                   <ChevronUp class="w-4 h-4" />
                 </button>
@@ -149,7 +167,7 @@ defineExpose({ save, reset })
                 <input
                   v-model="entity.name"
                   type="text"
-                  :placeholder="entitiesStates?.[entity.id]?.attributes?.friendly_name || '备注名（可选）'"
+                  :placeholder="entityNameMap[entity.id] || '备注名（可选）'"
                   class="settings-input py-2.5 !rounded-b-none text-sm"
                 >
                 <input
@@ -161,13 +179,13 @@ defineExpose({ save, reset })
               </div>
               <div class="flex flex-col justify-between transition-opacity flex-shrink-0 border border-white/5 rounded-2xl px-1 py-1.5 bg-white/5">
                 <button
-                  class="bg-white/10 rounded-full p-1 text-white/50 transition-all"
+                  class="bg-white/10 rounded-full p-1 text-white/50 transition-all hover:text-white hover:bg-white/20"
                   @click="addEntity(index)"
                 >
                   <Plus class="w-4 h-4" />
                 </button>
                 <button
-                  class="bg-white/10 rounded-full p-1 text-white/50 transition-all"
+                  class="bg-white/10 rounded-full p-1 text-white/50 transition-all hover:text-white hover:bg-white/20"
                   @click="removeEntity(index)"
                 >
                   <Minus class="w-4 h-4" />
@@ -175,7 +193,9 @@ defineExpose({ save, reset })
               </div>
             </div>
             <button class="settings-secondary-btn w-full justify-center border-dashed border-white/10 py-3 !mt-6" @click="addEntity()">
-              <PlusCircle class="w-4 h-4" /> 添加设备
+              <span class="flex items-center gap-2">
+                <PlusCircle class="w-4 h-4 mr-2" /> 添加设备
+              </span>
             </button>
           </div>
         </div>

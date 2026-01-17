@@ -54,7 +54,7 @@ watch(idle, (newIdle) => {
     <!-- 设置按钮 -->
     <button
       :class="{ 'opacity-0': !showSettingsButton }"
-      class="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all hover:rotate-90 duration-300" @click="openSettings"
+      class="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 hover:rotate-90" @click="openSettings"
     >
       <Settings class="w-6 h-6 text-white" />
     </button>

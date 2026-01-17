@@ -6,7 +6,7 @@ import type { OllamaResponse } from './types'
 import type { GreetingConfig } from '../types'
 
 export async function genGreetingText(time: string, isNow: boolean, greetingConfig: GreetingConfig): Promise<string> {
-  const currTime = '报时:' + time + '。';
+  const currTime = '当前时间:' + time + '。';
   const inputStr = currTime + (isNow ? greetingConfig.promptNow : greetingConfig.promptHours);
   console.log("prompts:", inputStr)
   try {
