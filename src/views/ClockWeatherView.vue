@@ -3,6 +3,7 @@ import { useIdle } from '@vueuse/core'
 import { Settings } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import Digit from '../components/Digit.vue'
 import Weather from '../components/Weather.vue'
 import { useTime } from '../hooks/useTime'
@@ -10,7 +11,8 @@ import { useConfigStore } from '../stores/config'
 import TimeAnnouncement from '../components/TimeAnnouncement.vue'
 
 const configStore = useConfigStore()
-const { clockConfig, showDrawer, activeTab } = storeToRefs(configStore)
+const { clockConfig, layoutConfig, showDrawer, activeTab } = storeToRefs(configStore)
+const { locale } = useI18n()
 
 const { h1, h2, m1, m2, s1, s2, lunar, now } = useTime({
   is24Hour: computed(() => clockConfig.value.is24Hour),
@@ -19,13 +21,30 @@ const { h1, h2, m1, m2, s1, s2, lunar, now } = useTime({
 const announceTimeNow = ref(false)
 
 function openSettings() {
-  activeTab.value = 'clock'
+  activeTab.value = 'general'
   showDrawer.value = true
 }
 
 function toggleSeconds() {
   clockConfig.value.showSeconds = !clockConfig.value.showSeconds
 }
+
+const weekdayLabel = computed(() => {
+  const formatter = new Intl.DateTimeFormat(locale.value, { weekday: 'long' })
+  return formatter.format(now.value)
+})
+
+const yearMonthLabel = computed(() => {
+  const date = now.value
+  if (locale.value === 'en-US') {
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    return `${month}-${date.getFullYear()}`
+  }
+  const formatter = new Intl.DateTimeFormat(locale.value, { year: 'numeric', month: 'long' })
+  return formatter.format(date)
+})
+
+const showLunar = computed(() => locale.value !== 'en-US')
 
 const baseDelay = computed(() => {
   return clockConfig.value.showSeconds ? 0 : -2
@@ -48,36 +67,38 @@ watch(idle, (newIdle) => {
 
 <template>
   <div
-    class="glass-panel relative h-full flex flex-col items-center justify-evenly text-white w-full overflow-y-auto overflow-x-hidden"
+    class="glass-panel relative h-full flex flex-col items-center justify-center text-white w-full overflow-y-auto overflow-x-hidden"
+    :class="{ 'clock-only-mode': layoutConfig.clockOnlyMode }"
     @click.stop="showSettingsButton = !showSettingsButton"
   >
     <!-- 设置按钮 -->
     <button
       :class="{ 'opacity-0': !showSettingsButton }"
-      class="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 hover:rotate-90" @click="openSettings"
+      class="absolute top-6 right-6 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 hover:rotate-90" @click="openSettings"
     >
       <Settings class="w-6 h-6 text-white" />
     </button>
 
     <!-- 日期与农历 -->
-    <div class="flex flex-col sm:flex-row items-center md:items-start gap-0 sm:gap-6 w-full justify-center">
-      <div class="flex items-center gap-4">
+    <div v-if="!layoutConfig.clockOnlyMode" class="flex flex-col sm:flex-row items-center md:items-start w-full justify-center">
+      <div class="flex items-center">
         <div class="date-day-big">
           {{ now.getDate() }}
         </div>
-        <div class="flex flex-col mt-2">
-          <span class="text-5xl tracking-[0.2em] opacity-90 uppercase">
-            {{ now.toLocaleDateString('zh-CN', { weekday: 'long' }) }}
+        <div class="flex flex-col mr-[8vh]">
+          <span class="weekday-label">
+            {{ weekdayLabel }}
           </span>
-          <span class="text-4xl tracking-[0.2em] font-light opacity-70 mt-2">
-            {{ now.getFullYear() }}年{{ now.getMonth() + 1 }}月
+          <span class="year-label">
+            {{ yearMonthLabel }}
           </span>
         </div>
-      </div>
-      <div class="hidden md:block w-px h-16 mx-8 self-center" />
-      <div class="sm:h-32 flex flex-row-reverse sm:flex-col items-center sm:items-start justify-center" @click.native="$emit('showEggPreview')">
-       <span class="text-4xl sm:text-5xl opacity-70 sm:opacity-90 tracking-wider sm:mt-2">{{ lunar.fullDate }}</span>
-        <span class="text-4xl tracking-[0.2em] font-light opacity-70 sm:mt-2">{{ lunar.year }}({{ lunar.yearShengxiao }})年{{ lunar.month }}月</span>
+        <div v-if="showLunar" class="flex flex-col" @click.native="$emit('showEggPreview')">
+          <div class="lunar-date-label">
+            {{ lunar.date }}<span v-if="lunar.festival">·{{ lunar.festival }}</span>
+          </div>
+          <span class="lunar-year-label">{{ lunar.year }}({{ lunar.yearShengxiao }})年{{ lunar.month }}月</span>
+        </div>
       </div>
     </div>
 
@@ -150,22 +171,58 @@ watch(idle, (newIdle) => {
     </div>
 
     <!-- 天气展示 -->
-    <Weather />
+    <Weather v-if="!layoutConfig.clockOnlyMode" />
   </div>
 </template>
 
 <style scoped>
 .glass-panel {
-  max-width: 1200px;
+  max-width: 150vh;
+  margin: 0 auto;
+}
+
+.glass-panel.clock-only-mode {
+  max-width: 100vw;
 }
 
 .date-day-big {
-  font-size: 8rem; /* iOS 12 Fallback: 约 80px */
-  line-height: 1;
+  font-size: 16vh;
+  line-height: 1.1;
   font-weight: 800;
   background: linear-gradient(to bottom, #ffffff, rgba(255, 255, 255, 0.7));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  margin-right: 2vh;
+}
+
+.weekday-label {
+  font-size: 6vh;
+  letter-spacing: 0.2em;
+  line-height: 1.1;
+  opacity: 0.9;
+}
+
+.year-label {
+  font-size: 4.6vh;
+  letter-spacing: 0.2em;
+  line-height: 1.1;
+  opacity: 0.8;
+  margin-top: 0.5vh;
+}
+
+.lunar-date-label {
+  font-size: 6vh;
+  letter-spacing: 0.2em;
+  line-height: 1.1;
+  opacity: 0.9;
+}
+
+.lunar-year-label {
+  font-size: 4.6vh;
+  letter-spacing: 0.2em;
+  line-height: 1.1;
+  opacity: 0.8;
+  margin-top: 0.5vh;
 }
 
 .clock-display {
@@ -175,12 +232,26 @@ watch(idle, (newIdle) => {
   align-items: center;
   justify-content: center;
   font-family: 'SFCompactRounded', 'Huninn', sans-serif;
-  font-size: min(26rem, 46vw);
+  font-size: 54vh;
+  margin-top: 6vh;
+  margin-bottom: 6vh;
   -webkit-text-stroke: 2px white; /* 恢复适中的描边加粗 */
 }
 
 .clock-display.with-seconds {
-  font-size: min(22rem, 28vw);
+  font-size: 38vh;
+}
+
+.clock-only-mode .clock-display {
+  font-size: 44vw;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.clock-only-mode .clock-display.with-seconds {
+  font-size: 30vw;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .clock-separator {

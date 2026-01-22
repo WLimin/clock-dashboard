@@ -1,14 +1,30 @@
 <script setup lang="ts">
 import type { LunarInfo } from '../types'
 import { X } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-defineProps<{
+const props = defineProps<{
   show: boolean
   date: Date
   lunar: LunarInfo
 }>()
 
 defineEmits(['close'])
+
+const { locale, t } = useI18n()
+
+const weekdayLabel = computed(() => {
+  const formatter = new Intl.DateTimeFormat(locale.value, { weekday: 'long' })
+  return formatter.format(props.date)
+})
+
+const dateLabel = computed(() => {
+  const formatter = new Intl.DateTimeFormat(locale.value, { year: 'numeric', month: 'long', day: 'numeric' })
+  return formatter.format(props.date)
+})
+
+const showLunar = computed(() => locale.value !== 'en-US')
 </script>
 
 <template>
@@ -35,80 +51,81 @@ defineEmits(['close'])
       <div class="space-y-4 max-h-[80vh] overflow-y-auto px-6">
         <!-- 头部日期 -->
         <div class="text-2xl">
-          {{ date.getFullYear() }}年{{ date.getMonth() + 1 }}月{{ date.getDate() }}日 · {{ date.toLocaleDateString('zh-CN', { weekday: 'long' }) }}
+          {{ dateLabel }} · {{ weekdayLabel }}
         </div>
 
-        <!-- 农历信息 -->
-        <div class="text-xl flex flex-wrap gap-2">
-          <span>
-            {{ lunar.year }}({{ lunar.yearShengxiao }})年 {{ lunar.month }}({{ lunar.monthGanzhi }})月 {{ lunar.dayInChinese }}({{ lunar.dayGanzhi }})日
-          </span>
-          <span v-if="lunar.festival" class="text-blue-400">
-            {{ lunar.festival }}
-          </span>
-          <span v-if="lunar.holiday" class="text-white/40"> · </span>
-          <span v-if="lunar.holiday" :class="lunar.holiday === '休' ? 'text-red-400' : 'text-orange-400'">
-            {{ lunar.holiday }}
-          </span>
-        </div>
-
-        <!-- 宜忌内容 -->
-        <div class="grid grid-cols-2 border border-white/10 rounded-2xl">
-          <div class="border-r border-white/10">
-            <div class="text-center text-emerald-400 font-bold text-lg border-b border-white/10 bg-white/5 p-2 rounded-tl-2xl">
-              宜
-            </div>
-            <div class="flex-1 flex flex-wrap gap-2 p-3">
-              <span v-for="item in lunar.yi" :key="item" class="text-md text-emerald-50/90">{{ item }}</span>
-            </div>
-          </div>
-
-          <div class="border-l border-white/10">
-            <div class="text-center text-red-400 font-bold text-lg border-b border-white/10 bg-white/5 p-2 rounded-tr-2xl">
-              忌
-            </div>
-            <div class="flex-1 flex flex-wrap gap-2 p-3">
-              <span v-for="item in lunar.ji" :key="item" class="text-md text-red-50/90">{{ item }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 时辰吉凶 -->
-        <div v-if="lunar.hours" class="border border-white/10 rounded-2xl">
-          <div class="text-center text-white/80 text-lg border-b border-white/10 bg-white/5 rounded-t-2xl p-2">
-            时辰吉凶
-          </div>
-          <div class="grid grid-cols-12 p-2 py-4">
-            <div
-              v-for="h in lunar.hours"
-              :key="h.hour"
-              class="flex items-center justify-center text-md text-emerald-50/90 tracking-widest"
-              style="writing-mode: vertical-rl;"
-            >
-              <span>
-                {{ h.ganzhi }}
-              </span>
-              <span
-                class="font-bold mt-1"
-                :class="h.luck === '吉' ? 'text-emerald-400' : 'text-red-400'"
-              >
-                {{ h.luck }}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 彭祖百忌 -->
-        <div v-if="lunar.pengzu" class="border border-white/10 rounded-2xl">
-          <div class="text-center text-white/80 text-lg border-b border-white/10 bg-white/5 rounded-t-2xl p-2">
-            彭祖百忌
-          </div>
-          <div class="flex items-center justify-center text-center p-2 py-4 text-md text-emerald-50/90 tracking-widest space-x-3">
-            <span v-for="item in lunar.pengzu" :key="item">
-              {{ item }}
+        <template v-if="showLunar">
+          <!-- 农历信息 -->
+          <div class="text-xl flex flex-wrap space-x-2">
+            <span>
+              {{ lunar.year }}({{ lunar.yearShengxiao }})年 {{ lunar.month }}({{ lunar.monthGanzhi }})月 {{ lunar.date }}({{ lunar.dayGanzhi }})日
+            </span>
+            <span v-if="lunar.festival" class="text-blue-400">
+              · {{ lunar.festival }}
+            </span>
+            <span v-if="lunar.holiday" :class="lunar.holiday === '休' ? 'text-red-400' : 'text-orange-400'">
+              · {{ lunar.holiday }}
             </span>
           </div>
-        </div>
+
+          <!-- 宜忌内容 -->
+          <div class="grid grid-cols-2 border border-white/10 rounded-2xl">
+            <div class="border-r border-white/10">
+              <div class="text-center text-emerald-400 font-bold text-lg border-b border-white/10 bg-white/5 p-2 rounded-tl-2xl">
+                {{ t('almanac.yi') }}
+              </div>
+              <div class="flex-1 flex flex-wrap p-2">
+                <span v-for="item in lunar.yi" :key="item" class="text-md text-emerald-50/90 m-1">{{ item }}</span>
+              </div>
+            </div>
+
+            <div class="border-l border-white/10">
+              <div class="text-center text-red-400 font-bold text-lg border-b border-white/10 bg-white/5 p-2 rounded-tr-2xl">
+                {{ t('almanac.ji') }}
+              </div>
+              <div class="flex-1 flex flex-wrap p-2">
+                <span v-for="item in lunar.ji" :key="item" class="text-md text-red-50/90 m-1">{{ item }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 时辰吉凶 -->
+          <div v-if="lunar.hours" class="border border-white/10 rounded-2xl">
+            <div class="text-center text-white/80 text-lg border-b border-white/10 bg-white/5 rounded-t-2xl p-2">
+              {{ t('almanac.hourlyLuck') }}
+            </div>
+            <div class="grid grid-cols-12 p-2 py-4">
+              <div
+                v-for="h in lunar.hours"
+                :key="h.hour"
+                class="flex items-center justify-center text-md text-emerald-50/90 tracking-widest"
+                style="writing-mode: vertical-rl;"
+              >
+                <span>
+                  {{ h.ganzhi }}
+                </span>
+                <span
+                  class="font-bold mt-1"
+                  :class="h.luck === '吉' ? 'text-emerald-400' : 'text-red-400'"
+                >
+                  {{ h.luck }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 彭祖百忌 -->
+          <div v-if="lunar.pengzu" class="border border-white/10 rounded-2xl">
+            <div class="text-center text-white/80 text-lg border-b border-white/10 bg-white/5 rounded-t-2xl p-2">
+              {{ t('almanac.pengzu') }}
+            </div>
+            <div class="flex items-center justify-center text-center p-2 py-4 text-md text-emerald-50/90 tracking-widest space-x-3">
+              <span v-for="item in lunar.pengzu" :key="item">
+                {{ item }}
+              </span>
+            </div>
+          </div>
+        </template>
       </div>
     </div>
   </div>

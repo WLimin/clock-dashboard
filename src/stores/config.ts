@@ -1,11 +1,19 @@
 import type { HAConfig, GreetingConfig, TTSConfig, TimeAnnouncementConfig } from '../types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { normalizeLocale } from '../i18n'
+
+const defaultLanguage = normalizeLocale(typeof navigator !== 'undefined' ? navigator.language : undefined)
 
 export const useConfigStore = defineStore('config', () => {
   const showDrawer = ref(false)
-  const activeTab = ref<'clock' | 'ttsllm' | 'weather' | 'calendar' | 'smart'>('clock')
+  const activeTab = ref<'general' | 'clock' | 'ttsllm' | 'weather' | 'calendar' | 'smart'>('general')
+  const language = ref(defaultLanguage)
 
+  const haLayout = ref({
+    /** 每行显示的设备数量：3、4 或 5 */
+    columns: 3,
+  })
   const haConfig = ref<HAConfig>({
     url: '',
     token: '',
@@ -55,15 +63,23 @@ export const useConfigStore = defineStore('config', () => {
     speed: 1.0,
   })
 
+  const layoutConfig = ref({
+    /** 仅显示时钟 */
+    clockOnlyMode: false,
+  })
+
   return {
+    haLayout,
     haConfig,
     clockConfig,
     calendarConfig,
     timeAnnouncementConfig,
     greetingConfig,
     ttsConfig,
+    layoutConfig,
     showDrawer,
     activeTab,
+    language,
   }
 }, {
   persist: {

@@ -36,6 +36,16 @@ export interface NominatimSearchResult {
   display_name: string
   lat: string
   lon: string
+  address: {
+    aeroway: string
+    road: string
+    city: string
+    county: string
+    state: string
+    postcode: string
+    country: string
+    country_code: string
+  }
 }
 
 export interface BigDataCloudLocationResponse {

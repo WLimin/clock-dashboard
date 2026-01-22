@@ -5,6 +5,7 @@ import { computed, ref, watch, watchEffect } from 'vue'
 import NewYearEgg from './components/NewYearEgg.vue'
 import SettingsDrawer from './components/SettingsDrawer.vue'
 import WeatherEffects from './components/WeatherEffects.vue'
+import { i18n } from './i18n'
 import { useConfigStore } from './stores/config'
 import { useWeatherStore } from './stores/weather'
 import { isIpadIOS15OrLower } from './utils/device'
@@ -13,7 +14,7 @@ import ClockWeatherView from './views/ClockWeatherView.vue'
 import SmartHomeView from './views/SmartHomeView.vue'
 
 const configStore = useConfigStore()
-const { showDrawer } = storeToRefs(configStore)
+const { showDrawer, layoutConfig } = storeToRefs(configStore)
 
 const currentPage = ref(1)
 const calendarRef = ref<any>(null)
@@ -34,7 +35,7 @@ const isSwiping = ref(false)
 
 // 判断是否需要渲染天气特效组件
 const shouldShowWeatherEffects = computed(() => {
-  if (!weatherData.value) return false
+  if (!weatherData.value || layoutConfig.value.clockOnlyMode) return false
 
   const code = weatherData.value.current?.weather_code ?? -1
 
@@ -132,6 +133,12 @@ watchEffect(() => {
   if (right.value && currentPage.value < 2) {
     goToPage(currentPage.value + 1)
   }
+})
+
+const { language } = storeToRefs(configStore)
+i18n.global.locale.value = language.value
+watch(language, (nextLocale) => {
+  i18n.global.locale.value = nextLocale
 })
 </script>
 

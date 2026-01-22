@@ -2,12 +2,14 @@
 import { Droplets, Leaf, PersonStanding, Sun } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useWeatherStore } from '../stores/weather'
 import { getAqiInfo } from '../utils/weather'
 import WeatherForecastModal from './WeatherForecastModal.vue'
 
 const weatherStore = useWeatherStore()
 const { weatherData, loading, locationText, weatherInfo, refreshInterval, airQualityData } = storeToRefs(weatherStore)
+const { t, locale } = useI18n()
 
 const showForecastModal = ref(false)
 
@@ -45,37 +47,37 @@ onUnmounted(() => {
 <template>
   <div
     id="weather-container"
-    class="weather-clickable px-4 sm:px-12 grid grid-cols-1 md:grid-cols-3 gap-3 w-full transition-opacity duration-700"
+    class="weather-clickable px-12 flex justify-between w-full transition-opacity duration-700"
     :class="{ 'opacity-30': loading, 'opacity-100': !loading }"
     @click.stop.prevent="openForecast"
   >
     <!-- 状态与定位 -->
-    <div class="flex items-center justify-center md:justify-start gap-0">
-      <div id="weather-icon" class="w-28 sm:h-28 flex-shrink-0">
+    <div class="flex items-center justify-center md:justify-start whitespace-nowrap">
+      <div id="weather-icon" class="flex-shrink-0 mr-[1vh]">
         <img :src="weatherInfo.icon" :alt="weatherInfo.text" class="w-full h-full object-contain" draggable="false">
       </div>
       <div>
-        <div id="weather-text" class="text-4xl font-semibold tracking-wide">
+        <div id="weather-text">
           {{ weatherInfo.text }}
         </div>
-        <div id="location-text" class="text-lg text-white/80 uppercase tracking-widest mt-2 whitespace-nowrap">
-          {{ locationText }} ·
-          降雨 <span class="text-blue-400 text-xl tabular-nums">{{ weatherData ? weatherData.hourly.precipitation_probability[weatherData.current_hour_index] : '--' }}%</span>
+        <div id="location-text" class="text-white/80 uppercase tracking-widest">
+          {{ locationText }}
+          · {{ t('weather.rainLabel') }} <span class="precipitation-probability-val text-blue-400 tabular-nums">{{ weatherData ? weatherData.hourly.precipitation_probability[weatherData.current_hour_index] : '--' }}%</span>
         </div>
       </div>
     </div>
 
     <!-- 温度显示 -->
-    <div class="flex items-center justify-center px-4 gap-6">
-      <div class="flex items-end">
-        <div id="temp-val" class="text-8xl font-extralight mr-1">
+    <div class="flex items-center justify-center px-4">
+      <div class="flex items-end mr-[2vh]">
+        <div id="temp-val" class="font-extralight mr-[0.8vh]">
           {{ weatherData ? Math.round(weatherData.current.temperature_2m) : '--' }}
         </div>
-        <div class="text-3xl font-light opacity-70 mb-12">
+        <div class="temp-unit font-light opacity-70">
           °C
         </div>
       </div>
-      <div class="flex flex-col items-end justify-between gap-2 text-3xl font-medium">
+      <div class="flex flex-col items-end justify-between font-medium">
         <span id="temp-max" class="text-red-200">
           {{ weatherData ? Math.round(Math.max(...weatherData.hourly.temperature_2m)) : '--' }}°
         </span>
@@ -86,43 +88,45 @@ onUnmounted(() => {
     </div>
 
     <!-- 环境数据 -->
-    <div class="flex flex-col justify-center items-center md:items-end sm:col-span-2 md:col-span-1 gap-3 text-white text-3xl tabular-nums">
-      <div class="w-full md:w-auto grid grid-cols-4 md:grid-cols-2 gap-y-3 gap-x-4">
+    <div class="environment-data flex justify-end items-center text-white tabular-nums">
+      <div class="flex flex-col mr-[2vh]">
         <!-- 湿度 -->
-        <div class="flex flex-col sm:flex-row items-center justify-center sm:justify-end gap-1">
-          <span id="humidity-val">
+        <div id="humidity-val" class="flex flex-row items-center justify-end">
+          <span>
             {{ weatherData ? weatherData.current.relative_humidity_2m : '--' }}%
           </span>
-          <Droplets class="w-8 h-8 text-blue-500/60 flex-shrink-0" />
-        </div>
-
-        <!-- 空气质量 -->
-        <div class="flex flex-col sm:flex-row items-center justify-center sm:justify-end gap-1">
-          <div class="flex items-start gap-2">
-            <span id="aqi-val">
-              {{ airQualityData?.current?.us_aqi || '--' }}
-            </span>
-            <span id="aqi-label" class="text-sm opacity-60 ml-[-6px] whitespace-nowrap" :class="aqiInfo.color">
-              {{ aqiInfo?.label || '-' }}
-            </span>
-          </div>
-          <Leaf class="w-8 h-8 text-green-300/60 flex-shrink-0" />
+          <Droplets class="environment-data-icon text-blue-500/60 flex-shrink-0 ml-1" />
         </div>
 
         <!-- 体感温度 -->
-        <div class="flex flex-col sm:flex-row items-center justify-center sm:justify-end gap-1">
-          <span id="apparent-temp-val">
+        <div id="apparent-temp-val" class="flex flex-row items-center justify-end">
+          <span>
             {{ weatherData ? Math.round(weatherData.current.apparent_temperature) : '--' }}°C
           </span>
-          <PersonStanding class="w-8 h-8 text-orange-500/60 flex-shrink-0" />
+          <PersonStanding class="environment-data-icon text-orange-500/60 flex-shrink-0 ml-1" />
+        </div>
+      </div>
+
+      <div class="flex flex-col">
+        <!-- 空气质量 -->
+        <div id="aqi-val" class="flex flex-row items-center justify-end">
+          <div class="flex items-start">
+            <span>
+              {{ airQualityData?.current?.us_aqi || '--' }}
+            </span>
+            <span v-if="locale !== 'en-US'" id="aqi-label" class="opacity-60 whitespace-nowrap" :class="aqiInfo.color">
+              {{ aqiInfo?.label || '-' }}
+            </span>
+          </div>
+          <Leaf class="environment-data-icon text-green-300/60 flex-shrink-0 ml-1" />
         </div>
 
         <!-- 紫外线 -->
-        <div class="flex flex-col sm:flex-row items-center justify-center sm:justify-end gap-1">
-          <span id="uv-val">
+        <div id="uv-val" class="flex flex-row items-center justify-end">
+          <span>
             {{ weatherData ? Math.round(weatherData.hourly.uv_index[weatherData.current_hour_index]) : '--' }}
           </span>
-          <Sun class="w-8 h-8 text-purple-500/60 flex-shrink-0" />
+          <Sun class="environment-data-icon text-purple-500/60 flex-shrink-0 ml-1" />
         </div>
       </div>
     </div>
@@ -141,5 +145,65 @@ onUnmounted(() => {
 .weather-clickable:active {
   transform: scale(0.98);
   background: rgba(255, 255, 255, 0.03);
+}
+
+#weather-icon {
+  width: 14.2vh;
+  height: 14.2vh;
+}
+
+#weather-text {
+  font-size: 4.7vh;
+  line-height: 1.1;
+  letter-spacing: 0.025em;
+  font-weight: 600;
+}
+
+#location-text {
+  font-size: 2.3vh;
+  margin-top: 1vh;
+}
+
+.precipitation-probability-val {
+  font-size: 2.8vh;
+}
+
+#temp-val {
+  font-size: 12.5vh;
+  line-height: 1.1;
+}
+
+.temp-unit {
+  font-size: 3.6vh;
+  margin-bottom: 7vh;
+}
+
+#temp-max,
+#temp-min {
+  font-size: 4vh;
+  line-height: 1.1;
+}
+#temp-max {
+  margin-bottom: 1.5vh;
+}
+
+.environment-data {
+  font-size: 4vh;
+  line-height: 1.1;
+}
+
+.environment-data-icon {
+  width: 4.2vh;
+  height: 4.2vh;
+}
+
+#humidity-val,
+#aqi-val {
+  margin-bottom: 1.5vh;
+}
+
+#aqi-label {
+  font-size: 2vh;
+  line-height: 1.1;
 }
 </style>

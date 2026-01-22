@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.20.1](https://github.com/teojs/clock-dashboard/compare/v1.20.0...v1.20.1) (2026-01-21)
+
+## [1.20.0](https://github.com/teojs/clock-dashboard/compare/v1.19.1...v1.20.0) (2026-01-21)
+
+
+### Features
+
+* add layout configuration options and clock-only mode toggle in GeneralSettings, enhance localization for layout settings, and update ClockWeatherView to support clock-only mode ([0c05820](https://github.com/teojs/clock-dashboard/commit/0c058203f2b1e7fa759af023a9e44e00813a0e74))
+
+### [1.19.1](https://github.com/teojs/clock-dashboard/compare/v1.19.0...v1.19.1) (2026-01-20)
+
+
+### Bug Fixes
+
+* reduce idle timeout to 30 seconds for automatic homepage redirection and adjust button positioning in ClockWeatherView for better visibility ([ac13cd2](https://github.com/teojs/clock-dashboard/commit/ac13cd219aefb48f0c129588095579b80179d988))
+
+## [1.19.0](https://github.com/teojs/clock-dashboard/compare/v1.18.0...v1.19.0) (2026-01-20)
+
+
+### Features
+
+* add new feedback issue template in Chinese to enhance user reporting experience ([31cb495](https://github.com/teojs/clock-dashboard/commit/31cb4955d56ca97063a7545844150885c2bb6a0d))
+* enhance SmartHomeSettings with layout configuration options, update idle timeout for homepage redirection, and improve localization for layout settings ([a9fefb5](https://github.com/teojs/clock-dashboard/commit/a9fefb51bf591a49a066a9099cc8531b5f897a1c))
+* integrate eruda for enhanced debugging in development, update postcss configuration and dependencies for improved styling capabilities ([786e6fe](https://github.com/teojs/clock-dashboard/commit/786e6feb106318e8e07a284606069a599ca16543))
+* integrate vue-i18n for multilingual support across components and settings, enhancing user experience with language selection and localization ([93174c2](https://github.com/teojs/clock-dashboard/commit/93174c23ca841aa94ff1931cd517c47b27536da7))
+
 ## [1.18.0](https://github.com/teojs/clock-dashboard/compare/v1.17.0...v1.18.0) (2026-01-16)
 
 

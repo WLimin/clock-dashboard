@@ -1,7 +1,7 @@
 import type { BigDataCloudLocationResponse, Coordinates } from './types'
 
-export async function reverseGeocode(lat: number, lon: number): Promise<BigDataCloudLocationResponse> {
-  const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=zh`)
+export async function reverseGeocode(lat: number, lon: number, language: string): Promise<BigDataCloudLocationResponse> {
+  const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=${language}`)
 
   if (!response.ok) {
     throw new Error(`Reverse geocoding API error: ${response.statusText}`)
@@ -11,8 +11,8 @@ export async function reverseGeocode(lat: number, lon: number): Promise<BigDataC
   return data
 }
 
-export async function getLocationByIp(): Promise<BigDataCloudLocationResponse> {
-  const res = await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?localityLanguage=zh')
+export async function getLocationByIp(language: string): Promise<BigDataCloudLocationResponse> {
+  const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?localityLanguage=${language}`)
 
   if (!res.ok) {
     throw new Error(`IP location API error: ${res.statusText}`)
@@ -22,9 +22,9 @@ export async function getLocationByIp(): Promise<BigDataCloudLocationResponse> {
   return data
 }
 
-export async function getCurrentPosition(timeout: number = 5000): Promise<Coordinates> {
+export async function getCurrentPosition(timeout: number = 5000, language: string): Promise<Coordinates> {
   if (!navigator.geolocation) {
-    const ipLocation = await getLocationByIp()
+    const ipLocation = await getLocationByIp(language)
     if (ipLocation.latitude && ipLocation.longitude) {
       return {
         latitude: ipLocation.latitude,
@@ -51,7 +51,7 @@ export async function getCurrentPosition(timeout: number = 5000): Promise<Coordi
     })
   }
   catch (error) {
-    const ipLocation = await getLocationByIp()
+    const ipLocation = await getLocationByIp(language)
     if (ipLocation.latitude && ipLocation.longitude) {
       return {
         latitude: ipLocation.latitude,

@@ -1,15 +1,20 @@
 import type { CitySearchResult } from '../api/types'
 import type { WeatherInfo } from '../types'
-import { defineStore } from 'pinia'
+import { defineStore, storeToRefs } from 'pinia'
 import { ref, watch } from 'vue'
 import { searchCities as searchCitiesApi } from '../api/geocoding'
 import { getCurrentPosition, reverseGeocode as reverseGeocodeApi } from '../api/location'
 import { fetchAirQualityData, fetchWeatherData } from '../api/weather'
+import { i18n } from '../i18n'
 import { mapWmoCode } from '../utils/weather'
+import { useConfigStore } from './config'
 
 export type LocationMode = 'auto' | 'coords' | 'city'
 
 export const useWeatherStore = defineStore('weather', () => {
+  const configStore = useConfigStore()
+  const { language } = storeToRefs(configStore)
+
   // --- Persistent State ---
   const locationMode = ref<LocationMode>('auto')
   const customLat = ref(39.9)
@@ -24,8 +29,8 @@ export const useWeatherStore = defineStore('weather', () => {
   const weatherData = ref<any>(null)
   const airQualityData = ref<any>(null)
   const loading = ref(false)
-  const locationText = ref('定位中...')
-  const weatherInfo = ref<WeatherInfo>({ text: '正在获取', icon: mapWmoCode(-1).icon })
+  const locationText = ref(i18n.global.t('weather.status.locating'))
+  const weatherInfo = ref<WeatherInfo>({ text: i18n.global.t('weather.status.loading'), icon: mapWmoCode(-1).icon })
   const cachedCoords = ref<{ lat: number, lon: number, city: string } | null>(null)
 
   async function fetchWeather(lat: number, lon: number) {
@@ -37,7 +42,7 @@ export const useWeatherStore = defineStore('weather', () => {
         })
         .catch((error) => {
           console.error('Weather API error:', error)
-          weatherInfo.value.text = '接口错误'
+          weatherInfo.value.text = i18n.global.t('weather.status.apiError')
           weatherInfo.value.icon = mapWmoCode(-1).icon
         })
 
@@ -83,10 +88,10 @@ export const useWeatherStore = defineStore('weather', () => {
         return []
       }
 
-      const results = await searchCitiesApi(trimmedQuery)
+      const results = await searchCitiesApi(trimmedQuery, 3, language.value)
       if (results.length > 0) {
         return results.map((r) => {
-          const rawName = r.name || ''
+          const rawName = r.address?.city || ''
           const rawDisplayName = r.display_name || ''
           const cityName = extractSimplifiedChinese(rawName.split(',')[0] || rawName)
           const displayName = cleanDisplayName(rawDisplayName)
@@ -128,8 +133,8 @@ export const useWeatherStore = defineStore('weather', () => {
 
   async function reverseGeocode(lat: number, lon: number) {
     try {
-      const data = await reverseGeocodeApi(lat, lon)
-      const city = data.city || data.locality || data.principalSubdivision || '未知城市'
+      const data = await reverseGeocodeApi(lat, lon, language.value)
+      const city = data.city || data.locality || data.principalSubdivision || i18n.global.t('weather.status.unknownCity')
       return city
     }
     catch (e) {
@@ -139,8 +144,8 @@ export const useWeatherStore = defineStore('weather', () => {
 
   async function updateWeather() {
     loading.value = true
-    weatherInfo.value.text = '正在获取'
-    locationText.value = '定位中...'
+    weatherInfo.value.text = i18n.global.t('weather.status.loading')
+    locationText.value = i18n.global.t('weather.status.locating')
 
     if (locationMode.value === 'coords') {
       cachedCoords.value = null
@@ -152,11 +157,11 @@ export const useWeatherStore = defineStore('weather', () => {
 
     if (locationMode.value === 'city') {
       cachedCoords.value = null
-      locationText.value = '定位中...'
+      locationText.value = i18n.global.t('weather.status.locating')
       const trimmedCity = customCity.value.trim()
       if (!trimmedCity) {
-        locationText.value = '城市名称为空'
-        throw new Error('城市名称不能为空')
+        locationText.value = i18n.global.t('weather.status.cityEmpty')
+        throw new Error(i18n.global.t('weather.status.cityEmpty'))
       }
       const results = await searchCities(customCity.value)
       if (results.length > 0) {
@@ -175,9 +180,9 @@ export const useWeatherStore = defineStore('weather', () => {
       return
     }
     try {
-      const coords = await getCurrentPosition(5000)
-      const locationData = await reverseGeocodeApi(coords.latitude, coords.longitude)
-      const cityName = locationData.locality || locationData.city || locationData.principalSubdivision || '未知城市'
+      const coords = await getCurrentPosition(5000, language.value)
+      const locationData = await reverseGeocodeApi(coords.latitude, coords.longitude, language.value)
+      const cityName = locationData.locality || locationData.city || locationData.principalSubdivision || i18n.global.t('weather.status.unknownCity')
       locationText.value = cityName
       cachedCoords.value = {
         lat: coords.latitude,
@@ -188,8 +193,8 @@ export const useWeatherStore = defineStore('weather', () => {
     }
     catch (error) {
       try {
-        locationText.value = '北京市 (默认)'
-        const defaultCity = '北京市 (默认)'
+        locationText.value = i18n.global.t('weather.status.defaultCity')
+        const defaultCity = i18n.global.t('weather.status.defaultCity')
         cachedCoords.value = {
           lat: 39.9,
           lon: 116.4,
@@ -198,7 +203,7 @@ export const useWeatherStore = defineStore('weather', () => {
         await fetchWeather(39.9, 116.4)
       }
       catch (err) {
-        weatherInfo.value.text = '更新超时'
+        weatherInfo.value.text = i18n.global.t('weather.status.updateTimeout')
         loading.value = false
       }
     }
@@ -208,9 +213,19 @@ export const useWeatherStore = defineStore('weather', () => {
   watch(locationMode, (newMode) => {
     if (newMode === 'auto') {
       cachedCoords.value = null
-      locationText.value = '定位中...'
+      locationText.value = i18n.global.t('weather.status.locating')
     }
   }, { flush: 'sync' })
+
+  watch(() => i18n.global.locale.value, () => {
+    if (weatherData.value?.current) {
+      weatherInfo.value = mapWmoCode(weatherData.value.current.weather_code, weatherData.value.current.is_day === 1)
+    }
+    if (loading.value) {
+      weatherInfo.value.text = i18n.global.t('weather.status.loading')
+      locationText.value = i18n.global.t('weather.status.locating')
+    }
+  })
 
   return {
     // Persistent

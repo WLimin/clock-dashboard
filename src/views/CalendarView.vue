@@ -3,12 +3,14 @@ import type { LunarInfo } from '../types'
 import { ChevronLeft, ChevronRight, Settings } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AlmanacModal from '../components/AlmanacModal.vue'
 import { useConfigStore } from '../stores/config'
 import { getAlmanacDetails, getLunarDate } from '../utils/lunar'
 
 const configStore = useConfigStore()
 const { calendarConfig, showDrawer, activeTab } = storeToRefs(configStore)
+const { t, locale } = useI18n()
 
 const currentMonthDate = ref(new Date())
 const today = ref(new Date())
@@ -76,12 +78,27 @@ const calendarDays = computed(() => {
 })
 
 const weekHeaders = computed(() => {
-  const headers = ['日', '一', '二', '三', '四', '五', '六']
+  const headers = [
+    t('weekdays.shortSimple.0'),
+    t('weekdays.shortSimple.1'),
+    t('weekdays.shortSimple.2'),
+    t('weekdays.shortSimple.3'),
+    t('weekdays.shortSimple.4'),
+    t('weekdays.shortSimple.5'),
+    t('weekdays.shortSimple.6'),
+  ]
   if (calendarConfig.value.weekStartDay === 1) {
-    return ['一', '二', '三', '四', '五', '六', '日']
+    return [headers[1], headers[2], headers[3], headers[4], headers[5], headers[6], headers[0]]
   }
   return headers
 })
+
+const monthLabel = computed(() => {
+  const formatter = new Intl.DateTimeFormat(locale.value, { year: 'numeric', month: 'long' })
+  return formatter.format(currentMonthDate.value)
+})
+
+const showLunar = computed(() => locale.value !== 'en-US')
 
 function changeMonth(delta: number) {
   const d = new Date(currentMonthDate.value)
@@ -90,6 +107,7 @@ function changeMonth(delta: number) {
 }
 
 function handleDayClick(day: any) {
+  if (!showLunar.value) return
   selectedDay.value = {
     ...day,
     lunar: {
@@ -117,37 +135,37 @@ defineExpose({ refreshToday })
 
 <template>
   <div class="full-screen-calendar text-white">
-    <div class="flex items-center justify-between w-full mb-8 px-4">
+    <div class="flex items-center justify-between w-full mb-[2vh] px-[2vh]">
       <div class="text-left">
-        <h2 class="text-4xl md:text-5xl font-bold tracking-widest">
-          {{ year }}年{{ month + 1 }}月
+        <h2 class="text-[6vh] leading-[6vh] font-bold tracking-widest">
+          {{ monthLabel }}
         </h2>
       </div>
-      <div class="flex items-center gap-3">
-        <button class="p-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-full transition-all duration-300" @click="changeMonth(-1)">
-          <ChevronLeft class="w-6 h-6 " />
+      <div class="flex items-center space-x-3">
+        <button class="p-[1.1vh] bg-white/10 hover:bg-white/20 border border-white/10 rounded-full transition-all duration-300" @click="changeMonth(-1)">
+          <ChevronLeft class="w-[3.1vh] h-[3.1vh] " />
         </button>
         <button
-          class="px-6 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-full transition-all duration-300 text-md font-medium"
+          class="px-[2.5vh] py-[1.4vh] bg-white/10 hover:bg-white/20 border border-white/10 rounded-full transition-all duration-300 text-[2.2vh] leading-none font-medium"
           @click="goToToday"
         >
-          今天
+          {{ t('calendar.today') }}
         </button>
-        <button class="p-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-full transition-all duration-300" @click="changeMonth(1)">
-          <ChevronRight class="w-6 h-6 " />
+        <button class="p-[1.1vh] bg-white/10 hover:bg-white/20 border border-white/10 rounded-full transition-all duration-300" @click="changeMonth(1)">
+          <ChevronRight class="w-[3.1vh] h-[3.1vh] " />
         </button>
         <button
-          class="p-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-full transition-all duration-300 ml-2"
+          class="p-[1.1vh] bg-white/10 hover:bg-white/20 border border-white/10 rounded-full transition-all duration-300 ml-2"
           @click="openSettings"
         >
-          <Settings class="w-6 h-6" />
+          <Settings class="w-[3.1vh] h-[3.1vh]" />
         </button>
       </div>
     </div>
 
-    <div class="flex-1 flex flex-col w-full">
+    <div class="h-[calc(100vh-13.5vh)] flex flex-col w-full">
       <div class="grid grid-cols-7 mb-2">
-        <div v-for="d in weekHeaders" :key="d" class="calendar-header-day text-xl font-bold">
+        <div v-for="d in weekHeaders" :key="d" class="calendar-header-day text-[2.6vh] leading-none font-bold">
           {{ d }}
         </div>
       </div>
@@ -159,13 +177,13 @@ defineExpose({ refreshToday })
           :class="{ 'other-month': day.isOtherMonth, 'today': day.isToday }"
           @click="handleDayClick(day)"
         >
-          <div class="day-number-wrapper flex flex-col items-center justify-center">
-            <span class="text-2xl md:text-3xl font-bold">{{ day.date.getDate() }}</span>
-            <div class="lunar-text text-sm font-normal mt-1 text-center">
+          <div class="day-number-wrapper flex flex-col items-center justify-center overflow-hidden px-2">
+            <span class="text-[4vh] leading-none font-bold">{{ day.date.getDate() }}</span>
+            <div v-if="showLunar" class="lunar-text text-[1.9vh] leading-none font-normal mt-[1vh] text-center line-clamp-1">
               <span
                 :class="day.lunar.isFestival ? 'text-blue-300 opacity-100' : 'opacity-60'"
               >
-                {{ day.lunar.date }}
+                {{ day.lunar.festival || (day.lunar.date === '初一' ? `${day.lunar.month}月` : day.lunar.date) }}
               </span>
               <template v-if="calendarConfig.showHolidays && day.lunar.holiday">
                 <span class="opacity-60"> · </span>
@@ -182,7 +200,7 @@ defineExpose({ refreshToday })
 
   <Teleport to="body">
     <AlmanacModal
-      v-if="selectedDay"
+      v-if="selectedDay && showLunar"
       :show="!!selectedDay"
       :date="selectedDay.date"
       :lunar="selectedDay.lunar"
@@ -197,7 +215,7 @@ defineExpose({ refreshToday })
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 2rem;
+  padding: 4vh;
   box-sizing: border-box;
 }
 
@@ -218,7 +236,6 @@ defineExpose({ refreshToday })
   justify-content: center;
   transition: all 0.2s;
   position: relative;
-  min-height: 0;
   background-color: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0);
   border-radius: 12px;
@@ -235,16 +252,9 @@ defineExpose({ refreshToday })
 
 .calendar-header-day {
   text-align: center;
-  padding: 10px 0;
+  padding: 3vh 0;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   opacity: 0.5;
-}
-
-@media (max-width: 768px) {
-  .calendar-day.today .day-number-wrapper {
-    width: 60px;
-    height: 60px;
-  }
 }
 </style>
