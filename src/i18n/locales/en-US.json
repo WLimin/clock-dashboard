@@ -39,6 +39,7 @@
   "tabs": {
     "general": "General",
     "clock": "Clock",
+    "ttsllm": "Tts",
     "weather": "Weather",
     "calendar": "Calendar",
     "smart": "Smart"
@@ -190,5 +191,23 @@
     "ji": "Inauspicious",
     "hourlyLuck": "Hourly Luck",
     "pengzu": "Peng Zu Taboos"
+  },
+  "ttsSetting": {
+    "enabled": "Hourly Chime",
+    "startHour": "Start time",
+    "stopHour": "End time",
+    "textGenSets": "Time announcement text generation",
+    "ollamaApiUrl": "Ollama API service address",
+    "llmModel": "Name of the large model",
+    "promptHours": "Hourly chime template",
+    "promptNow": "Voice time announcement template",
+    "ttsSets": "Text-to-Speech",
+    "ttsApiUrl": "OpenAI compatible TTS API service address",
+    "ttsVoice": "Tone",
+    "responseFormat": "Response MIME type",
+    "speed": "speed",
+    "promptHoursPlaceholder": "Prompt text for large language models used in hourly reporting scenarios.",
+    "promptNowPlaceholder": "Prompt text for the large language model used in the voice time announcement scenario.",
+    "ttsVoicePlaceholder": "Chinese female voice"
   }
 }

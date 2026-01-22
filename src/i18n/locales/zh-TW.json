@@ -39,6 +39,7 @@
   "tabs": {
     "general": "通用",
     "clock": "時鐘",
+    "ttsllm": "報時",
     "weather": "天氣",
     "calendar": "日曆",
     "smart": "HA"
@@ -190,5 +191,23 @@
     "ji": "忌",
     "hourlyLuck": "時辰吉凶",
     "pengzu": "彭祖百忌"
+  },
+  "ttsSetting": {
+    "enabled": "整點報時",
+    "startHour": "開始時間",
+    "stopHour": "結束時間",
+    "textGenSets": "報時文本生成",
+    "ollamaApiUrl": "Ollama API服務地址",
+    "llmModel": "大模型名稱",
+    "promptHours": "整點報時模板",
+    "promptNow": "語音報時模板",
+    "ttsSets": "文本轉語音",
+    "ttsApiUrl": "OpenAI相容 TTS API服務地址",
+    "ttsVoice": "音色",
+    "responseFormat": "響應MIME類型",
+    "speed": "速度",
+    "promptHoursPlaceholder": "整點報場景用的大語言模型提示符文本。",
+    "promptNowPlaceholder": "語音報時場景用的大語言模型提示符文本。",
+    "ttsVoicePlaceholder": "中文女"
   }
 }

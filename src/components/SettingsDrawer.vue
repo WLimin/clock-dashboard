@@ -22,7 +22,7 @@ const { t } = useI18n()
 const tabs = [
   { id: 'general', labelKey: 'tabs.general', icon: Globe },
   { id: 'clock', labelKey: 'tabs.clock', icon: Clock },
-  { id: 'ttsllm', labelKey: 'tabs.tts', icon: Speech },
+  { id: 'ttsllm', labelKey: 'tabs.ttsllm', icon: Speech },
   { id: 'weather', labelKey: 'tabs.weather', icon: CloudSun },
   { id: 'calendar', labelKey: 'tabs.calendar', icon: Calendar },
   { id: 'smart', labelKey: 'tabs.smart', icon: Home },
