@@ -1,6 +1,6 @@
 import type { NominatimSearchResult } from './types'
 
-export async function searchCities(query: string, limit: number = 3): Promise<NominatimSearchResult[]> {
+export async function searchCities(query: string, limit: number = 3, language: string = 'zh-CN'): Promise<NominatimSearchResult[]> {
   const trimmedQuery = query.trim()
   if (!trimmedQuery) {
     return []
@@ -10,7 +10,7 @@ export async function searchCities(query: string, limit: number = 3): Promise<No
   url.searchParams.set('q', trimmedQuery)
   url.searchParams.set('format', 'json')
   url.searchParams.set('limit', limit.toString())
-  url.searchParams.set('accept-language', 'zh-CN')
+  url.searchParams.set('accept-language', language)
   url.searchParams.set('addressdetails', '1')
 
   const res = await fetch(url.toString(), {

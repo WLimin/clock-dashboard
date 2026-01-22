@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { Calendar, Clock, CloudSun, Github, Home, Save, X, Speech } from 'lucide-vue-next'
+import { Calendar, Clock, CloudSun, Github, Globe, Home, Save, X, Speech } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import packageJson from '../../package.json'
 import { useConfigStore } from '../stores/config'
 import { isIpadIOS15OrLower } from '../utils/device'
 import CalendarSettings from './settings/CalendarSettings.vue'
 import ClockSettings from './settings/ClockSettings.vue'
 import TtsAndLlmSettings from './settings/TtsAndLlmSettings.vue'
+import GeneralSettings from './settings/GeneralSettings.vue'
 import SmartHomeSettings from './settings/SmartHomeSettings.vue'
 import WeatherSettings from './settings/WeatherSettings.vue'
 
@@ -15,23 +17,29 @@ const VERSION = packageJson.version
 
 const configStore = useConfigStore()
 const { showDrawer, activeTab } = storeToRefs(configStore)
+const { t } = useI18n()
 
 const tabs = [
-  { id: 'clock', name: '时钟', icon: Clock },
-  { id: 'ttsllm', name: '语音', icon: Speech },
-  { id: 'weather', name: '天气', icon: CloudSun },
-  { id: 'calendar', name: '日历', icon: Calendar },
-  { id: 'smart', name: 'HA', icon: Home },
+  { id: 'general', labelKey: 'tabs.general', icon: Globe },
+  { id: 'clock', labelKey: 'tabs.clock', icon: Clock },
+  { id: 'ttsllm', labelKey: 'tabs.ttsllm', icon: Speech },
+  { id: 'weather', labelKey: 'tabs.weather', icon: CloudSun },
+  { id: 'calendar', labelKey: 'tabs.calendar', icon: Calendar },
+  { id: 'smart', labelKey: 'tabs.smart', icon: Home },
 ] as const
+
+const activeTabLabel = computed(() => t(`tabs.${activeTab.value}`))
 
 const clockSettingsRef = ref<InstanceType<typeof ClockSettings> | null>(null)
 const ttsAndLlmSettingsRef = ref<InstanceType<typeof TtsAndLlmSettings> | null>(null)
 const weatherSettingsRef = ref<InstanceType<typeof WeatherSettings> | null>(null)
 const calendarSettingsRef = ref<InstanceType<typeof CalendarSettings> | null>(null)
 const smartHomeSettingsRef = ref<InstanceType<typeof SmartHomeSettings> | null>(null)
+const generalSettingsRef = ref<InstanceType<typeof GeneralSettings> | null>(null)
 
 watch(showDrawer, (isShowing) => {
   if (isShowing) {
+    generalSettingsRef.value?.reset()
     clockSettingsRef.value?.reset()
     ttsAndLlmSettingsRef.value?.reset()
     weatherSettingsRef.value?.reset()
@@ -41,6 +49,7 @@ watch(showDrawer, (isShowing) => {
 })
 
 function saveAll() {
+  generalSettingsRef.value?.save()
   clockSettingsRef.value?.save()
   ttsAndLlmSettingsRef.value?.save()
   weatherSettingsRef.value?.save()
@@ -73,7 +82,7 @@ function closeDrawer() {
         <div class="w-20 md:w-48 border-r border-white/10 flex flex-col py-4 flex-shrink-0 overflow-y-auto">
           <div class="px-4 mb-10 hidden md:block">
             <h2 class="text-xl font-bold tracking-tighter text-white/90">
-              设置中心
+              {{ t('settingsDrawer.title') }}
             </h2>
           </div>
           <nav class="flex-1 space-y-2 px-2">
@@ -86,21 +95,21 @@ function closeDrawer() {
             >
               <span class="flex flex-col md:flex-row items-center px-3 py-4 md:py-3">
                 <component :is="tab.icon" class="w-6 h-6 mr-0 md:mr-2 mb-2 md:mb-0" />
-                <span class="text-xs md:text-base md:tracking-wide">{{ tab.name }}</span>
+                <span class="text-xs md:text-base md:tracking-wide">{{ t(tab.labelKey) }}</span>
               </span>
             </button>
           </nav>
 
           <div class="hidden md:block text-center text-[10px] text-white/30">
-            <div>Clock Dashboard v{{ VERSION }}</div>
+            <div>{{ t('settingsDrawer.version', { version: VERSION }) }}</div>
             <div>
-              <a href="https://github.com/teojs/clock-dashboard" target="_blank" class="text-blue-500/80 inline-flex items-center gap-1">
-                Copyright © 2025-2026 teojs ↗
+              <a href="https://github.com/teojs/clock-dashboard" target="_blank" class="text-blue-500/80 inline-flex items-center">
+                {{ t('settingsDrawer.copyright') }}
               </a>
             </div>
           </div>
           <div class="block md:hidden text-center text-[10px] text-white/30 mt-8">
-            <a href="https://github.com/teojs/clock-dashboard" target="_blank" class="text-blue-500/80 inline-flex items-center gap-1">
+            <a href="https://github.com/teojs/clock-dashboard" target="_blank" class="text-blue-500/80 inline-flex items-center">
               <Github class="w-6 h-6 text-white/40" />
             </a>
           </div>
@@ -111,7 +120,7 @@ function closeDrawer() {
           <!-- Header -->
           <div class="flex items-center justify-between px-4 py-2 border-b border-white/10">
             <h3 class="text-xl font-medium text-white">
-              {{ tabs.find(t => t.id === activeTab)?.name }}设置
+              {{ t('settingsDrawer.tabTitle', { tab: activeTabLabel }) }}
             </h3>
             <div class="space-x-2">
               <button class="p-2 hover:bg-white/10 rounded-full text-white/70 hover:text-white transition-all" @click="closeDrawer">
@@ -125,7 +134,8 @@ function closeDrawer() {
           </div>
 
           <!-- Scrollable Area -->
-          <div class="flex-1 overflow-y-auto p-6 settings-scroll-area">
+          <div class="flex-1 overflow-y-auto p-6">
+            <GeneralSettings v-if="activeTab === 'general'" ref="generalSettingsRef" />
             <ClockSettings v-if="activeTab === 'clock'" ref="clockSettingsRef" />
             <TtsAndLlmSettings v-if="activeTab === 'ttsllm'" ref="ttsAndLlmSettingsRef" />
             <WeatherSettings v-if="activeTab === 'weather'" ref="weatherSettingsRef" />
@@ -141,10 +151,6 @@ function closeDrawer() {
 <style scoped>
 .cubic-bezier {
   transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.settings-scroll-area {
-  -webkit-overflow-scrolling: touch;
 }
 </style>
 
@@ -227,7 +233,7 @@ function closeDrawer() {
   border-radius: 0.75rem;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.6);
   font-weight: 500;
   transition: all 0.3s;
 }
@@ -243,7 +249,7 @@ function closeDrawer() {
 
 .settings-input {
   width: 100%;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 0.75rem;
   padding: 0.75rem 1rem;
@@ -253,7 +259,7 @@ function closeDrawer() {
 }
 .settings-input:focus {
   border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .settings-secondary-btn {

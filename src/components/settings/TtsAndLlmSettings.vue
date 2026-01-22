@@ -2,9 +2,11 @@
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import { useConfigStore } from '../../stores/config'
+import { useI18n } from 'vue-i18n'
 
 const configStore = useConfigStore()
 const { greetingConfig, ttsConfig, timeAnnouncementConfig } = storeToRefs(configStore)
+const { t } = useI18n()
 
 const draftGreeting = ref({ ...greetingConfig.value })
 const draftTts = ref({ ...ttsConfig.value })
@@ -29,7 +31,7 @@ defineExpose({ save, reset })
     <section>
       <div class="settings-toggle-card" :class="{ active: draftTimeAnnouncementConfig.enabled }"
         @click="draftTimeAnnouncementConfig.enabled = !draftTimeAnnouncementConfig.enabled">
-        <span class="font-medium">整点报时</span>
+        <span class="font-medium">{{t("ttsSetting.enabled")}}</span>
         <div class="toggle-switch">
           <div class="toggle-dot" />
         </div>
@@ -38,8 +40,8 @@ defineExpose({ save, reset })
       <section>
         <section>
           <div class="flex justify-between items-center mb-6">
-            <h4 class="text-white/50 mb-4 uppercase tracking-widest text-sm font-medium">
-              打开时间 </h4>
+            <h4 class="text-white/50 mb-4 tracking-widest text-sm font-medium">
+              {{t("ttsSetting.startHour")}} </h4>
             <span class="text-xs font-mono bg-white/10 px-2 py-1 rounded text-white/80">{{draftTimeAnnouncementConfig.startHour }}</span>
           </div>
           <input v-model.number="draftTimeAnnouncementConfig.startHour" type="range" min="0" max="23" step="1" class="settings-range">
@@ -50,8 +52,8 @@ defineExpose({ save, reset })
 
         <section>
           <div class="flex justify-between items-center mb-6">
-            <h4 class="text-white/50 mb-4 uppercase tracking-widest text-sm font-medium">
-              关闭时间 </h4>
+            <h4 class="text-white/50 mb-4 tracking-widest text-sm font-medium">
+              {{t("ttsSetting.stopHour")}} </h4>
             <span class="text-xs font-mono bg-white/10 px-2 py-1 rounded text-white/80">{{draftTimeAnnouncementConfig.stopHour }}</span>
           </div>
           <input v-model.number="draftTimeAnnouncementConfig.stopHour" type="range" min="0" max="23" step="1" class="settings-range">
@@ -62,62 +64,62 @@ defineExpose({ save, reset })
     </section>
 
     <section>
-      <h3 class="text-white/90 mb-4 uppercase tracking-widest text-sm font-medium">
-        报时文本生成
+      <h3 class="text-white/90 mb-4 tracking-widest text-sm font-medium">
+        {{t("ttsSetting.textGenSets")}}
       </h3>
       <section>
-        <h4 class="text-white/50 mb-4 uppercase tracking-widest text-sm font-medium">
-          Ollama API服务地址
+        <h4 class="text-white/50 mb-4 tracking-widest text-sm font-medium">
+          {{t("ttsSetting.ollamaApiUrl")}}
         </h4>
         <input v-model="draftGreeting.apiUrl" type="text" placeholder="http://172.18.0.160:11434/v1/responses"
           class="settings-input" />
       </section>
       <section>
-        <h4 class="text-white/50 mb-4 uppercase tracking-widest text-sm font-medium">
-          大模型名称
+        <h4 class="text-white/50 mb-4 tracking-widest text-sm font-medium">
+          {{t("ttsSetting.llmModel")}}
         </h4>
         <input v-model="draftGreeting.model" type="text" placeholder="qwen2.5:latest" class="settings-input" />
       </section>
       <section>
-        <h4 class="text-white/50 mb-4 uppercase tracking-widest text-sm font-medium">
-          整点报时模板
+        <h4 class="text-white/50 mb-4 tracking-widest text-sm font-medium">
+          {{t("ttsSetting.promptHours")}}
         </h4>
-        <input v-model="draftGreeting.promptHours" type="text" placeholder="整点报场景用的大语言模型提示符文本。"
+        <input v-model="draftGreeting.promptHours" type="text" :placeholder="$t('ttsSetting.promptHoursPlaceholder')"
           class="settings-input" />
       </section>
       <section>
-        <h4 class="text-white/50 mb-4 uppercase tracking-widest text-sm font-medium">
-          语音报时模板
+        <h4 class="text-white/50 mb-4 tracking-widest text-sm font-medium">
+          {{t("ttsSetting.promptNow")}}
         </h4>
-        <input v-model="draftGreeting.promptNow" type="text" placeholder="语音报时场景用的大语言模型提示符文本。"
+        <input v-model="draftGreeting.promptNow" type="text" :placeholder="$t('ttsSetting.promptNowPlaceholder')"
           class="settings-input" />
       </section>
     </section>
 
     <section>
-      <h3 class="text-white/90 mb-4 uppercase tracking-widest text-sm font-medium">
-        文本转语音
+      <h3 class="text-white/90 mb-4 tracking-widest text-sm font-medium">
+        {{t("ttsSetting.ttsSets")}}
       </h3>
-      <h4 class="text-white/50 mb-4 uppercase tracking-widest text-sm font-medium">
-        OpenAI兼容 TTS API服务地址
+      <h4 class="text-white/50 mb-4 tracking-widest text-sm font-medium">
+        {{t("ttsSetting.ttsApiUrl")}}
       </h4>
       <input v-model="draftTts.apiUrl" type="text" placeholder="http://172.18.0.180:8000/v1/audio/speech"
         class="settings-input" />
 
-      <h4 class="text-white/50 mb-4 uppercase tracking-widest text-sm font-medium">
-        音色
+      <h4 class="text-white/50 mb-4 tracking-widest text-sm font-medium">
+        {{t("ttsSetting.ttsVoice")}}
       </h4>
-      <input v-model="draftTts.voice" type="text" placeholder="中文女" class="settings-input" />
+      <input v-model="draftTts.voice" type="text" :placeholder="$t('ttsSetting.ttsVoicePlaceholder')" class="settings-input" />
 
-      <h4 class="text-white/50 mb-4 uppercase tracking-widest text-sm font-medium">
-        响应MIME类型
+      <h4 class="text-white/50 mb-4 tracking-widest text-sm font-medium">
+        {{t("ttsSetting.responseFormat")}}
       </h4>
       <input v-model="draftTts.response_format" type="text" placeholder="wav" class="settings-input" />
 
       <section>
         <div class="flex justify-between items-center mb-6">
-          <h4 class="text-white/50 mb-4 uppercase tracking-widest text-sm font-medium">
-            速度
+          <h4 class="text-white/50 mb-4 tracking-widest text-sm font-medium">
+            {{t("ttsSetting.speed")}}
           </h4>
           <span class="text-xs font-mono bg-white/10 px-2 py-1 rounded text-white/80">{{ draftTts.speed }}</span>
         </div>

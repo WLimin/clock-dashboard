@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Loader2, Wifi, WifiOff } from 'lucide-vue-next'
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { haSocket } from '../../api/ha-websocket'
 
 const props = defineProps<{
@@ -8,6 +9,7 @@ const props = defineProps<{
   token: string
 }>()
 
+const { t } = useI18n()
 const isTestingConnection = ref(false)
 const connectionStatus = ref<'idle' | 'success' | 'error'>('idle')
 const connectionMessage = ref('')
@@ -15,7 +17,7 @@ const connectionMessage = ref('')
 async function testConnection() {
   if (!props.url || !props.token) {
     connectionStatus.value = 'error'
-    connectionMessage.value = '请填写 HA 地址和访问令牌'
+    connectionMessage.value = t('ha.fillUrlToken')
     alert(connectionMessage.value)
     return
   }
@@ -27,12 +29,12 @@ async function testConnection() {
   try {
     await haSocket.connect(props.url, props.token)
     connectionStatus.value = 'success'
-    connectionMessage.value = '连接成功！'
+    connectionMessage.value = t('ha.connectionSuccess')
     alert(connectionMessage.value)
   }
   catch (error: any) {
     connectionStatus.value = 'error'
-    connectionMessage.value = error?.message || '连接失败，请检查地址和令牌是否正确'
+    connectionMessage.value = error?.message || t('ha.connectionFailed')
     alert(connectionMessage.value)
   }
   finally {
@@ -43,7 +45,7 @@ async function testConnection() {
 
 <template>
   <button
-    class="flex items-center gap-2 text-blue-400"
+    class="flex items-center space-x-2 text-blue-400"
     :class="{
       'text-green-400': connectionStatus === 'success',
       'text-red-400': connectionStatus === 'error',
@@ -58,6 +60,6 @@ async function testConnection() {
         'animate-spin': isTestingConnection,
       }"
     />
-    <span class="text-sm">测试连接</span>
+    <span class="text-sm">{{ t('ha.testConnection') }}</span>
   </button>
 </template>

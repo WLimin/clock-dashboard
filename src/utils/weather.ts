@@ -1,4 +1,5 @@
 import type { WeatherInfo } from '../types'
+import { i18n } from '../i18n'
 
 /**
  * 将 WMO 天气代码映射为 Meteocons (Bas Milius 版) 图标名称
@@ -46,50 +47,24 @@ export function mapWmoCode(code: number, isDay: boolean = true): WeatherInfo {
 
   const icon = `./weather-icons/${getIconName()}.svg`
 
-  const textMap: Record<number, string> = {
-    0: '晴朗',
-    1: '晴间多云',
-    2: '多云',
-    3: '阴',
-    45: '雾',
-    48: '沉积雾',
-    51: '小毛毛雨',
-    53: '毛毛雨',
-    55: '大毛毛雨',
-    56: '轻微冻毛毛雨',
-    57: '冻毛毛雨',
-    61: '小雨',
-    63: '中雨',
-    65: '大雨',
-    66: '轻微冻雨',
-    67: '冻雨',
-    71: '小雪',
-    73: '中雪',
-    75: '大雪',
-    77: '雪粒',
-    80: '小阵雨',
-    81: '阵雨',
-    82: '强阵雨',
-    85: '小阵雪',
-    86: '阵雪',
-    95: '雷阵雨',
-    96: '雷雨伴有冰雹',
-    99: '强雷雨伴冰雹',
-  }
+  const { t, te } = i18n.global
+  const conditionKey = `weather.conditions.${code}`
+  const conditionText = te(conditionKey) ? t(conditionKey) : t('weather.conditions.unknown')
 
   return {
-    text: textMap[code] || '未知',
+    text: conditionText,
     icon,
   }
 }
 
 export function getAqiInfo(aqi: number | undefined) {
+  const { t } = i18n.global
   if (aqi === undefined) return { label: '--', color: 'text-white/40' }
 
-  if (aqi <= 50) return { label: '优', color: 'text-green-400' }
-  if (aqi <= 100) return { label: '良', color: 'text-yellow-400' }
-  if (aqi <= 150) return { label: '轻度', color: 'text-orange-400' }
-  if (aqi <= 200) return { label: '中度', color: 'text-red-400' }
-  if (aqi <= 300) return { label: '重度', color: 'text-purple-400' }
-  return { label: '严重', color: 'text-red-900' }
+  if (aqi <= 50) return { label: t('weather.aqi.good'), color: 'text-green-400' }
+  if (aqi <= 100) return { label: t('weather.aqi.moderate'), color: 'text-yellow-400' }
+  if (aqi <= 150) return { label: t('weather.aqi.light'), color: 'text-orange-400' }
+  if (aqi <= 200) return { label: t('weather.aqi.medium'), color: 'text-red-400' }
+  if (aqi <= 300) return { label: t('weather.aqi.heavy'), color: 'text-purple-400' }
+  return { label: t('weather.aqi.severe'), color: 'text-red-900' }
 }

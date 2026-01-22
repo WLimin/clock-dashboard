@@ -3,16 +3,19 @@ import type { HAConfig } from '../../types'
 import { ChevronDown, ChevronUp, Code, List, Minus, Plus, PlusCircle } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 import { onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useConfigStore } from '../../stores/config'
 import { useHAStore } from '../../stores/ha'
 import TestHAConnection from './TestHAConnection.vue'
 
 const configStore = useConfigStore()
 const haStore = useHAStore()
-const { haConfig } = storeToRefs(configStore)
+const { haConfig, haLayout: haLayoutConfig } = storeToRefs(configStore)
 const { entitiesStates } = storeToRefs(haStore)
+const { t } = useI18n()
 
 const smartConfig = ref<HAConfig>(JSON.parse(JSON.stringify(haConfig.value)))
+const layoutDraft = ref({ ...haLayoutConfig.value })
 const isJsonMode = ref(false)
 const jsonInput = ref('')
 const entityNameMap = ref<Record<string, string>>({})
@@ -47,7 +50,7 @@ watch(isJsonMode, (newVal) => {
       }
     }
     catch (e) {
-      alert('JSON 格式错误，请检查后再切换模式')
+      alert(t('smartHomeSettings.jsonInvalid'))
       setTimeout(
         () => { isJsonMode.value = true },
         0,
@@ -87,15 +90,17 @@ function save() {
       smartConfig.value.entities = Array.isArray(parsed.entities) ? parsed.entities : []
     }
     catch (e) {
-      alert('JSON 格式错误，保存失败')
+      alert(t('smartHomeSettings.jsonInvalidSave'))
       return
     }
   }
   haConfig.value = JSON.parse(JSON.stringify(smartConfig.value))
+  haLayoutConfig.value = { ...layoutDraft.value }
 }
 
 function reset() {
   smartConfig.value = JSON.parse(JSON.stringify(haConfig.value))
+  layoutDraft.value = { ...haLayoutConfig.value }
   refreshEntityNameMap()
 }
 
@@ -108,53 +113,70 @@ onMounted(() => {
 
 <template>
   <div class="space-y-10 animate-fade-in">
-    <section class="flex flex-col gap-4">
+    <section>
+      <h4 class="text-white/60 mb-4 uppercase tracking-widest text-sm font-medium">
+        {{ t('smartHomeSettings.layoutSettings') }}
+      </h4>
+      <div class="flex flex-wrap space-x-3">
+        <button
+          v-for="col in [3, 4, 5]"
+          :key="col"
+          class="settings-tab-btn flex-1 whitespace-nowrap"
+          :class="{ active: layoutDraft.columns === col }"
+          @click="layoutDraft.columns = col"
+        >
+          {{ col }} {{ t('smartHomeSettings.columnsPerRow') }}
+        </button>
+      </div>
+    </section>
+
+    <section class="flex flex-col space-y-4">
       <div class="flex items-center justify-between mb-6">
-        <h4 class="text-white/50 uppercase tracking-widest text-sm font-medium">
-          基础配置
+        <h4 class="text-white/60 uppercase tracking-widest text-sm font-medium">
+          {{ t('smartHomeSettings.baseConfig') }}
         </h4>
         <button
-          class="text-[10px] flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 transition-all"
+          class="text-[10px] flex items-center px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 transition-all"
           @click="isJsonMode = !isJsonMode"
         >
-          <component :is="isJsonMode ? List : Code" class="w-3.5 h-3.5" />
-          {{ isJsonMode ? '列表模式' : 'JSON 模式' }}
+          <component :is="isJsonMode ? List : Code" class="w-3.5 h-3.5 mr-1.5" />
+          {{ isJsonMode ? t('smartHomeSettings.listMode') : t('smartHomeSettings.jsonMode') }}
         </button>
       </div>
 
       <div v-if="!isJsonMode" class="space-y-6">
         <div class="space-y-2">
-          <label class="block text-sm opacity-50 mb-2 uppercase tracking-widest">HA 地址</label>
+          <label class="block text-sm opacity-50 mb-2 uppercase tracking-widest">{{ t('smartHomeSettings.haUrl') }}</label>
           <input
             v-model="smartConfig.url"
             type="text"
-            placeholder="http://192.168.1.xxx:8123"
+            :placeholder="t('smartHomeSettings.haUrlPlaceholder')"
             class="settings-input"
           >
         </div>
         <div class="space-y-2">
           <div class="flex items-center justify-between">
-            <label class="block text-sm opacity-50 mb-2 uppercase tracking-widest">长期访问令牌</label>
+            <label class="block text-sm opacity-50 mb-2 uppercase tracking-widest">{{ t('smartHomeSettings.token') }}</label>
             <TestHAConnection :url="smartConfig.url" :token="smartConfig.token" />
           </div>
 
           <input
             v-model="smartConfig.token"
             type="password"
-            placeholder="输入令牌"
+            :placeholder="t('smartHomeSettings.tokenPlaceholder')"
             class="settings-input"
           >
         </div>
 
         <div class="space-y-4 pt-4">
           <div class="flex items-center justify-between">
-            <h4 class="text-white/50 uppercase tracking-widest text-sm font-medium">
-              设备管理
+            <h4 class="text-white/60 uppercase tracking-widest text-sm font-medium">
+              {{ t('smartHomeSettings.deviceManagement') }}
             </h4>
-            <span class="text-sm text-white/20 font-mono">{{ smartConfig.entities.length }} 个实体</span>
+            <span class="text-sm text-white/20 font-mono">{{ t('smartHomeSettings.entityCount', { count: smartConfig.entities.length }) }}</span>
           </div>
           <div class="space-y-4">
-            <div v-for="(entity, index) in smartConfig.entities" :key="entity.id || index" class="relative flex gap-2 items-stretch group">
+            <div v-for="(entity, index) in smartConfig.entities" :key="entity.id || index" class="relative flex space-x-2 items-stretch group">
               <div class="flex flex-col justify-between opacity-60 flex-shrink-0 border border-white/10 rounded-2xl px-1 py-1.5 bg-white/5">
                 <button class="bg-white/10 rounded-full p-1 text-white/80 hover:text-white hover:bg-white/20 transition-all" @click="moveEntity(index, -1)">
                   <ChevronUp class="w-4 h-4" />
@@ -167,25 +189,25 @@ onMounted(() => {
                 <input
                   v-model="entity.name"
                   type="text"
-                  :placeholder="entityNameMap[entity.id] || '备注名（可选）'"
+                  :placeholder="entityNameMap[entity.id] || t('smartHomeSettings.entityNotePlaceholder')"
                   class="settings-input py-2.5 !rounded-b-none text-sm"
                 >
                 <input
                   v-model="entity.id"
                   type="text"
-                  placeholder="实体 ID"
+                  :placeholder="t('smartHomeSettings.entityIdPlaceholder')"
                   class="settings-input py-2.5 !rounded-t-none text-sm"
                 >
               </div>
               <div class="flex flex-col justify-between transition-opacity flex-shrink-0 border border-white/5 rounded-2xl px-1 py-1.5 bg-white/5">
                 <button
-                  class="bg-white/10 rounded-full p-1 text-white/50 transition-all hover:text-white hover:bg-white/20"
+                  class="bg-white/10 rounded-full p-1 text-white/60 transition-all hover:text-white hover:bg-white/20"
                   @click="addEntity(index)"
                 >
                   <Plus class="w-4 h-4" />
                 </button>
                 <button
-                  class="bg-white/10 rounded-full p-1 text-white/50 transition-all hover:text-white hover:bg-white/20"
+                  class="bg-white/10 rounded-full p-1 text-white/60 transition-all hover:text-white hover:bg-white/20"
                   @click="removeEntity(index)"
                 >
                   <Minus class="w-4 h-4" />
@@ -193,9 +215,9 @@ onMounted(() => {
               </div>
             </div>
             <button class="settings-secondary-btn w-full justify-center border-dashed border-white/10 py-3 !mt-6" @click="addEntity()">
-              <span class="flex items-center gap-2">
-                <PlusCircle class="w-4 h-4 mr-2" /> 添加设备
-              </span>
+              <div class="flex items-center space-x-2 justify-center">
+                <PlusCircle class="w-4 h-4 mr-2" /> {{ t('smartHomeSettings.addDevice') }}
+              </div>
             </button>
           </div>
         </div>

@@ -1,7 +1,7 @@
 {
   "name": "clock-dashboard",
   "type": "module",
-  "version": "1.18.0",
+  "version": "1.20.1",
   "private": false,
   "packageManager": "pnpm@9.6.0",
   "license": "CC-BY-NC-SA-4.0",
@@ -9,10 +9,10 @@
     "dev": "vite",
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
-    "release": "standard-version && git push --follow-tags",
-    "release:patch": "standard-version --release-as patch && git push --follow-tags",
-    "release:minor": "standard-version --release-as minor && git push --follow-tags",
-    "release:major": "standard-version --release-as major && git push --follow-tags",
+    "release": "standard-version",
+    "release:patch": "standard-version --release-as patch",
+    "release:minor": "standard-version --release-as minor",
+    "release:major": "standard-version --release-as major",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
@@ -26,7 +26,8 @@
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",
     "tailwind-merge": "^2.2.0",
-    "vue": "^3.4.0"
+    "vue": "^3.4.0",
+    "vue-i18n": "^11.2.8"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^6.7.3",
@@ -37,6 +38,7 @@
     "eslint": "^9.39.2",
     "eslint-plugin-format": "^1.1.0",
     "postcss": "^8.4.32",
+    "postcss-color-functional-notation": "^8.0.0",
     "standard-version": "^9.5.0",
     "tailwindcss": "^3.4.0",
     "terser": "^5.27.0",
