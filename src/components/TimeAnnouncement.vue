@@ -9,7 +9,7 @@ import { genGreetingText } from '../api/greetingtext'
 import { genTts } from '../api/generatetts'
 
 const configStore = useConfigStore()
-const { timeAnnouncementConfig, greetingConfig, ttsConfig } = storeToRefs(configStore)
+const { timeAnnouncementConfig, greetingConfig, ttsConfig, language } = storeToRefs(configStore)
 
 const props = defineProps<{
   doTimeAnnouce: boolean
@@ -33,7 +33,7 @@ let inGenTts: boolean = false;
 
 const fetchGreetingText = async (time: string, isNow: boolean): Promise<string> => {
   inGenText = true;
-  const greetingText = await genGreetingText(time, isNow, greetingConfig.value);
+  const greetingText = await genGreetingText(time, isNow, greetingConfig.value, language.value);
   inGenText = false;
   return greetingText;
 }

@@ -27,3 +27,32 @@ export const i18n = createI18n({
   fallbackLocale: 'zh-CN',
   messages,
 })
+
+export function getTtsPromptHours(): Record<string, any> {
+  const ttsPrompts: Record<string, any> = {};
+
+  for (const key in messages) {
+    if (messages.hasOwnProperty(key)) {
+      const value = messages[key as SupportedLocale];
+      if (value.ttsSetting && value.ttsSetting.prompts && value.ttsSetting.prompts.promptHours) {
+        ttsPrompts[key] = value.ttsSetting.prompts.promptHours;
+      }
+    }
+  }
+
+  return ttsPrompts;
+}
+export function getTtsPromptNow(): Record<string, any> {
+  const ttsPrompts: Record<string, any> = {};
+
+  for (const key in messages) {
+    if (messages.hasOwnProperty(key)) {
+      const value = messages[key as SupportedLocale];
+      if (value.ttsSetting && value.ttsSetting.prompts && value.ttsSetting.prompts.promptNow) {
+        ttsPrompts[key] = value.ttsSetting.prompts.promptNow;
+      }
+    }
+  }
+
+  return ttsPrompts;
+}
