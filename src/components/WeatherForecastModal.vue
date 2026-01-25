@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useIdle } from '@vueuse/core'
 import { RefreshCw, Settings } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, watch } from 'vue'
@@ -125,6 +126,13 @@ function handleOverlayClick(e: MouseEvent) {
     handleClose()
   }
 }
+
+const { idle } = useIdle(30 * 1000)
+watch(idle, (newIdle) => {
+  if (newIdle) {
+    handleClose()
+  }
+})
 </script>
 
 <template>
