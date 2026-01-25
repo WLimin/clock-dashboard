@@ -41,8 +41,7 @@ export interface LunarInfo {
 }
 
 export interface GreetingConfig { //报时配置接口
-  promptHours: { [key: string]: string }; //整点报时提示词
-  promptNow: { [key: string]: string };   //当前时间提示词
+  prompts: Record<string, any>; // { [key: string]: {hours:string, now:string};  //整点报时和当前时间提示词
   model: string;                          //使用的大语言模型名，例如：qwen2.5:latest
   apiUrl: string;                         //openai兼容的ollama api接口地址，例如：http://172.18.0.160:11434/v1/responses
 }

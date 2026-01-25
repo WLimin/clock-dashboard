@@ -85,14 +85,14 @@ defineExpose({ save, reset })
         <h4 class="text-white/50 mb-4 tracking-widest text-sm font-medium">
           {{t("ttsSetting.promptHours")}}
         </h4>
-        <input v-model="draftGreeting.promptHours[language]" type="text" :placeholder="$t('ttsSetting.promptHoursPlaceholder')"
+        <input v-model="draftGreeting.prompts[language]['hours']" type="text" :placeholder="$t('ttsSetting.promptHoursPlaceholder')"
           class="settings-input" />
       </section>
       <section>
         <h4 class="text-white/50 mb-4 tracking-widest text-sm font-medium">
           {{t("ttsSetting.promptNow")}}
         </h4>
-        <input v-model="draftGreeting.promptNow[language]" type="text" :placeholder="$t('ttsSetting.promptNowPlaceholder')"
+        <input v-model="draftGreeting.prompts[language]['now']" type="text" :placeholder="$t('ttsSetting.promptNowPlaceholder')"
           class="settings-input" />
       </section>
     </section>

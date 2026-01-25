@@ -1,7 +1,7 @@
 import type { HAConfig, GreetingConfig, TTSConfig, TimeAnnouncementConfig } from '../types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { normalizeLocale, getTtsPromptHours, getTtsPromptNow } from '../i18n'
+import { normalizeLocale, getTtsPrompts } from '../i18n'
 import { useI18n } from 'vue-i18n'
 
 const defaultLanguage = normalizeLocale(typeof navigator !== 'undefined' ? navigator.language : undefined)
@@ -53,8 +53,7 @@ export const useConfigStore = defineStore('config', () => {
   })
 
   const greetingConfig = ref<GreetingConfig>({
-    promptHours:  getTtsPromptHours(),
-    promptNow: getTtsPromptNow(),
+    prompts:  getTtsPrompts(),
     model: 'qwen2.5:latest',
     apiUrl: '/ollama/v1/responses',
   })

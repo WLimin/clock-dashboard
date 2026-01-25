@@ -7,7 +7,7 @@ import type { GreetingConfig } from '../types'
 
 export async function genGreetingText(time: string, isNow: boolean, greetingConfig: GreetingConfig, language: string): Promise<string> {
   const currTime = '当前时间:' + time + '。';
-  const inputStr = currTime + (isNow ? greetingConfig.promptNow[language] : greetingConfig.promptHours[language]);
+  const inputStr = currTime + (isNow ? greetingConfig.prompts[language]['now'] : greetingConfig.prompts[language]['hours']);
   console.log("prompts:", inputStr)
   try {
     const response = await fetch(greetingConfig.apiUrl, {
